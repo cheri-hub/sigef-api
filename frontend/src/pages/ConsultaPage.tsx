@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { AlertCircle, Download, Loader2, Map, Search } from 'lucide-react';
+import { AlertCircle, Download, Loader2, Map, Search, Server } from 'lucide-react';
 import { consultaService, sigefService } from '../services';
 import ParcelaDetalhesModal from '../components/ParcelaDetalhesModal';
 import type {

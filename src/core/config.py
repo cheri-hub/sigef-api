@@ -3,6 +3,7 @@ Gov-Auth Enterprise API
 Configurações por ambiente
 """
 
+import os
 from functools import lru_cache
 from pathlib import Path
 from typing import Literal
@@ -121,11 +122,10 @@ class Settings(BaseSettings):
         """Retorna lista de origens CORS."""
         if self.is_production:
             # Em produção, lê de variável de ambiente
-            cors_env = self.model_config.get("env_prefix", "") + "CORS_ORIGINS"
-            origins_str = self.model_extra.get("cors_origins_raw", "")
+            origins_str = os.environ.get("CORS_ORIGINS", "")
             if origins_str:
                 return [origin.strip() for origin in origins_str.split(",")]
-            return []
+            return ["https://govauth.cherihub.cloud", "https://cherihub.cloud"]
         return ["http://localhost:3000", "http://localhost:8080"]
 
 

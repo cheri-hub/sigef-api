@@ -52,24 +52,24 @@ export interface BatchDownloadRequest {
 
 export interface DownloadResponse {
   success: boolean;
-  codigo: string;
-  files: DownloadedFile[];
-  errors: string[];
+  message: string;
+  arquivo?: string | null;
+  tamanho_bytes?: number | null;
 }
 
-export interface DownloadedFile {
-  tipo: string;
-  filename: string;
-  size: number;
-  path: string;
+export interface DownloadAllResponse {
+  success: boolean;
+  message: string;
+  arquivos?: Record<string, string>;
 }
 
 export interface BatchDownloadResponse {
   success: boolean;
+  message: string;
   total: number;
-  completed: number;
-  failed: number;
-  results: DownloadResponse[];
+  sucesso: number;
+  falhas: number;
+  resultados: Record<string, Record<string, string>>;
 }
 
 // API Error

@@ -3,6 +3,7 @@ import type {
   ParcelaInfo,
   DownloadRequest,
   DownloadResponse,
+  DownloadAllResponse,
   BatchDownloadRequest,
   BatchDownloadResponse,
 } from '../types';
@@ -27,8 +28,8 @@ export const sigefService = {
   /**
    * Download de todos os CSVs de uma parcela
    */
-  async downloadAll(codigo: string): Promise<DownloadResponse> {
-    const response = await api.post<DownloadResponse>('/sigef/download/all', { codigo });
+  async downloadAll(codigo: string): Promise<DownloadAllResponse> {
+    const response = await api.post<DownloadAllResponse>('/sigef/download/all', { codigo });
     return response.data;
   },
 

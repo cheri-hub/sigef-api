@@ -13,6 +13,7 @@ from datetime import datetime
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.openapi.utils import get_openapi
 
 from src.api.v1 import router as v1_router
 from src.api.middleware.auth import APIKeyMiddleware
@@ -82,6 +83,15 @@ def create_app() -> FastAPI:
         - **Download CSV**: Exportação de Parcela, Vértice e Limites
         - **Batch Processing**: Download em lote de múltiplas parcelas
         
+        ## Autenticação
+        
+        As rotas `/v1/sigef/*` e `/v1/auth/login` requerem autenticação via API Key.
+        Use o botão **Authorize** acima e insira: `Bearer <sua-api-key>`
+        
+        Rotas públicas (sem autenticação):
+        - `/v1/consultar/*` - Consultas WFS
+        - `/v1/auth/status` - Status da sessão
+        
         ## Uso
         
         1. Faça login via `/v1/auth/login`
@@ -94,6 +104,38 @@ def create_app() -> FastAPI:
         redoc_url="/redoc",
         lifespan=lifespan,
     )
+    
+    # Custom OpenAPI schema with security
+    def custom_openapi():
+        if app.openapi_schema:
+            return app.openapi_schema
+        openapi_schema = get_openapi(
+            title=app.title,
+            version=app.version,
+            description=app.description,
+            routes=app.routes,
+        )
+        # Add security scheme
+        openapi_schema["components"]["securitySchemes"] = {
+            "BearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "API Key",
+                "description": "Insira sua API Key"
+            }
+        }
+        # Apply security to all routes except public ones
+        for path in openapi_schema["paths"]:
+            for method in openapi_schema["paths"][path]:
+                # Skip public routes
+                if "/consultar" in path or "/auth/status" in path or path in ["/health", "/"]:
+                    continue
+                if method != "parameters":
+                    openapi_schema["paths"][path][method]["security"] = [{"BearerAuth": []}]
+        app.openapi_schema = openapi_schema
+        return app.openapi_schema
+    
+    app.openapi = custom_openapi
     
     # CORS
     app.add_middleware(

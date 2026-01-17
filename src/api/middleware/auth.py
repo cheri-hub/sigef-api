@@ -22,10 +22,12 @@ class APIKeyMiddleware(BaseHTTPMiddleware):
     - /docs
     - /redoc
     - /openapi.json
+    - /api/v1/consultar (WFS queries)
+    - /api/v1/auth/status
     """
     
     PUBLIC_PATHS = {"/health", "/docs", "/redoc", "/openapi.json", "/"}
-    PUBLIC_PREFIXES = ("/docs", "/redoc", "/openapi")
+    PUBLIC_PREFIXES = ("/docs", "/redoc", "/openapi", "/api/v1/consultar", "/api/v1/auth/status")
     
     async def dispatch(self, request: Request, call_next):
         """Processa requisição e valida API Key."""

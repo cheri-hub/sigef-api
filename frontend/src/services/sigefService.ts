@@ -89,6 +89,18 @@ export const sigefService = {
     document.body.removeChild(link);
     window.URL.revokeObjectURL(url);
   },
+
+  /**
+   * Abre a página da parcela no navegador autenticado (Playwright)
+   */
+  async openBrowser(codigo: string): Promise<void> {
+    await api.post(`/sigef/open-browser/${codigo}`);
+  },
+
+  async getDetalhes(codigo: string): Promise<any> {
+    const response = await api.get(`/sigef/detalhes/${codigo}`);
+    return response.data;
+  },
 };
 
 export default sigefService;

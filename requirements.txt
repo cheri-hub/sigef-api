@@ -13,6 +13,7 @@ playwright>=1.40.0
 # HTTP Client
 httpx>=0.25.0
 requests>=2.31.0
+beautifulsoup4>=4.12.0
 
 # Security
 python-jose[cryptography]>=3.3.0
@@ -25,6 +26,7 @@ python-json-logger>=2.0.7
 # Utils
 python-dotenv>=1.0.0
 tenacity>=8.2.0
+rich>=13.7.0
 
 # Testing
 pytest>=7.4.0

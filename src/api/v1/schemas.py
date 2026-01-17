@@ -17,6 +17,26 @@ class TipoExportacaoEnum(str, Enum):
     LIMITE = "limite"
 
 
+class LayerType(str, Enum):
+    """Tipos de camadas WFS disponíveis."""
+    
+    SIGEF_PARTICULAR = "sigef_particular"
+    SIGEF_PUBLICO = "sigef_publico"
+    SNCI_PRIVADO = "snci_privado"
+    SNCI_PUBLICO = "snci_publico"
+    ASSENTAMENTOS = "assentamentos"
+    QUILOMBOLAS = "quilombolas"
+    PENDENTES_TITULACAO = "pendentes_titulacao"
+
+
+class ServerType(str, Enum):
+    """Tipos de servidores WFS disponíveis."""
+    
+    INCRA = "incra"
+    GEOONE = "geoone"
+    AUTO = "auto"
+
+
 # ============== Auth Schemas ==============
 
 class SessionInfoResponse(BaseModel):
@@ -60,8 +80,20 @@ class ParcelaInfoResponse(BaseModel):
     perimetro_m: float | None = None
     municipio: str | None = None
     uf: str | None = None
-    situacao: str
+    situacao: str | None = None
     url: str
+
+
+class ParcelaDetalhesResponse(BaseModel):
+    """Detalhes completos de uma parcela extraídos da página HTML."""
+    
+    codigo: str
+    url: str
+    informacoes_parcela: dict
+    historico: dict
+    area_georreferenciada: dict
+    detentores: list[dict]
+    registro: dict
 
 
 class DownloadRequest(BaseModel):
@@ -178,3 +210,85 @@ class ErrorResponse(BaseModel):
     error: str
     detail: str | None = None
     code: str | None = None
+
+
+# ============== Consulta WFS Schemas ==============
+
+class BoundingBox(BaseModel):
+    """Retângulo de coordenadas geográficas WGS84."""
+    
+    x_min: float = Field(..., ge=-180, le=180, description="Longitude mínima (Oeste)")
+    y_min: float = Field(..., ge=-90, le=90, description="Latitude mínima (Sul)")
+    x_max: float = Field(..., ge=-180, le=180, description="Longitude máxima (Leste)")
+    y_max: float = Field(..., ge=-90, le=90, description="Latitude máxima (Norte)")
+    
+    @field_validator("x_max")
+    @classmethod
+    def validate_x_max(cls, v: float, info) -> float:
+        """Valida que x_max > x_min."""
+        if "x_min" in info.data and v <= info.data["x_min"]:
+            raise ValueError("x_max deve ser maior que x_min")
+        return v
+    
+    @field_validator("y_max")
+    @classmethod
+    def validate_y_max(cls, v: float, info) -> float:
+        """Valida que y_max > y_min."""
+        if "y_min" in info.data and v <= info.data["y_min"]:
+            raise ValueError("y_max deve ser maior que y_min")
+        return v
+    
+    def to_wfs_bbox(self) -> str:
+        """Converte para formato WFS: 'x_min,y_min,x_max,y_max'."""
+        return f"{self.x_min},{self.y_min},{self.x_max},{self.y_max}"
+
+
+class ConsultaRequest(BaseModel):
+    """Requisição de consulta de imóveis."""
+    
+    bbox: BoundingBox
+    camada: LayerType = Field(default=LayerType.SIGEF_PARTICULAR)
+    servidor: ServerType = Field(default=ServerType.AUTO)
+    limite: int = Field(default=1000, ge=1, le=10000, description="Limite de resultados")
+
+
+class DownloadLinks(BaseModel):
+    """Links de download para uma parcela."""
+    
+    vertices_csv: str
+    limites_shp: str
+    parcela_shp: str
+    detalhes: str
+
+
+class ImovelResponse(BaseModel):
+    """Representa um imóvel encontrado."""
+    
+    id: str
+    parcela_codigo: str
+    denominacao: str | None = None
+    municipio: str | None = None
+    uf: str | None = None
+    area_ha: float | None = None
+    situacao: str | None = None
+    data_certificacao: str | None = None
+    geometry: dict = Field(..., description="GeoJSON Geometry")
+    download_links: DownloadLinks | None = None
+    propriedades: dict = Field(default_factory=dict, description="Todas propriedades originais")
+
+
+class ConsultaResponse(BaseModel):
+    """Resposta da consulta - É um GeoJSON FeatureCollection."""
+    
+    sucesso: bool
+    mensagem: str
+    total: int
+    servidor_utilizado: str
+    camada: str
+    bbox_consultado: BoundingBox
+    tempo_resposta_ms: float
+    imoveis: list[ImovelResponse]
+    
+    # GeoJSON FeatureCollection
+    type: str = Field(default="FeatureCollection")
+    features: list[dict] = Field(default_factory=list)

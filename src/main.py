@@ -15,6 +15,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from src.api.v1 import router as v1_router
+from src.api.middleware.auth import APIKeyMiddleware
 from src.core.config import get_settings
 from src.core.exceptions import GovAuthException
 from src.core.logging import get_logger, setup_logging
@@ -101,6 +102,10 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+    
+    # API Key Authentication (apenas em produção)
+    if settings.is_production:
+        app.add_middleware(APIKeyMiddleware)
     
     # Exception handlers
     @app.exception_handler(GovAuthException)

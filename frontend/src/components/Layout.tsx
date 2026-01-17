@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, LogIn, Download, FileText, Settings } from 'lucide-react';
+import { Home, LogIn, Download, FileText, Map, Settings } from 'lucide-react';
 
 interface LayoutProps {
   children: ReactNode;
@@ -9,6 +9,7 @@ interface LayoutProps {
 const navItems = [
   { path: '/', label: 'Dashboard', icon: Home },
   { path: '/auth', label: 'Autenticação', icon: LogIn },
+  { path: '/consulta', label: 'Consulta WFS', icon: Map },
   { path: '/download', label: 'Downloads', icon: Download },
   { path: '/batch', label: 'Lote', icon: FileText },
 ];

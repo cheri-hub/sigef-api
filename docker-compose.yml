@@ -19,6 +19,10 @@ services:
       - LOG_FORMAT=json
       - HOST=0.0.0.0
       - PORT=8000
+      # Configurar em produção:
+      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:3000}
+      - API_KEY=${API_KEY:-change-this-in-production}
+      - SECRET_KEY=${SECRET_KEY:-change-this-in-production}
     volumes:
       # Dados persistentes
       - ./data/sessions:/app/data/sessions

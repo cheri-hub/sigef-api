@@ -16,6 +16,7 @@ from datetime import datetime
 from pathlib import Path
 
 import httpx
+from bs4 import BeautifulSoup
 from playwright.sync_api import sync_playwright
 from tenacity import retry, stop_after_attempt, wait_exponential
 
@@ -307,10 +308,7 @@ class HttpSigefClient(ISigefClient):
     
     async def get_parcela(self, codigo: str, session: Session) -> Parcela:
         """
-        Obtém dados básicos de uma parcela.
-        
-        Por enquanto retorna apenas estrutura básica.
-        Dados completos viriam de parsing do HTML ou outra API.
+        Obtém dados básicos de uma parcela extraindo do HTML.
         """
         codigo = self._validate_parcela_code(codigo)
         
@@ -333,9 +331,273 @@ class HttpSigefClient(ISigefClient):
                     f"Erro ao buscar parcela: HTTP {response.status_code}"
                 )
             
-            # Retorna parcela básica
-            # TODO: Implementar parsing do HTML para extrair mais dados
-            return Parcela(codigo=codigo)
+            # Parse do HTML para extrair dados
+            soup = BeautifulSoup(response.text, 'html.parser')
+            
+            # Salva HTML completo para debug
+            debug_path = Path("debug_parcela.html")
+            debug_path.write_text(response.text, encoding='utf-8')
+            logger.info(f"HTML salvo em: {debug_path.absolute()}")
+            
+            # Estratégia: buscar <th> e pegar <td> na mesma <tr>
+            
+            # Extrai denominação
+            denominacao = None
+            th_denom = soup.find('th', string=re.compile('Denominação', re.IGNORECASE))
+            if th_denom:
+                tr = th_denom.find_parent('tr')
+                if tr:
+                    td = tr.find('td')
+                    if td:
+                        denominacao = td.get_text(strip=True)
+            logger.info(f"Denominação extraída: {denominacao}")
+            
+            # Extrai área
+            area_ha = None
+            th_area = soup.find('th', string=re.compile('Área', re.IGNORECASE))
+            if th_area:
+                tr = th_area.find_parent('tr')
+                if tr:
+                    td = tr.find('td')
+                    if td:
+                        area_text = td.get_text(strip=True)
+                        # Extrai número (ex: "327,8232 ha")
+                        match = re.search(r'([\d.,]+)\s*ha', area_text, re.IGNORECASE)
+                        if match:
+                            try:
+                                area_ha = float(match.group(1).replace('.', '').replace(',', '.'))
+                            except ValueError:
+                                pass
+            logger.info(f"Área extraída: {area_ha}")
+            
+            # Extrai município e UF da seção "Municípios"
+            municipio = None
+            uf = None
+            th_municipios = soup.find('th', string=re.compile('Municípios', re.IGNORECASE))
+            if th_municipios:
+                # Pega próxima <tr> após o header
+                tr_municipios = th_municipios.find_parent('tr')
+                if tr_municipios:
+                    next_tr = tr_municipios.find_next_sibling('tr')
+                    if next_tr:
+                        td = next_tr.find('td')
+                        if td:
+                            # Formato: "Bocaiúva do Sul - PR"
+                            mun_uf_text = td.get_text(strip=True)
+                            if ' - ' in mun_uf_text:
+                                parts = mun_uf_text.rsplit(' - ', 1)
+                                municipio = parts[0].strip()
+                                uf = parts[1].strip()
+            logger.info(f"Município extraído: {municipio}")
+            logger.info(f"UF extraída: {uf}")
+            
+            # Extrai situação
+            situacao = None
+            th_situacao = soup.find('th', string=re.compile('Situação', re.IGNORECASE))
+            if th_situacao:
+                tr = th_situacao.find_parent('tr')
+                if tr:
+                    td = tr.find('td')
+                    if td:
+                        situacao_text = td.get_text(strip=True)
+                        logger.info(f"Situação texto encontrado: {situacao_text}")
+                        if 'certificada' in situacao_text.lower():
+                            from src.domain.entities import ParcelaSituacao
+                            situacao = ParcelaSituacao.CERTIFICADA
+            logger.info(f"Situação final: {situacao}")
+            
+            return Parcela(
+                codigo=codigo,
+                denominacao=denominacao,
+                area_ha=area_ha,
+                municipio=municipio,
+                uf=uf,
+                situacao=situacao
+            )
+    
+    async def get_parcela_detalhes(self, codigo: str, session: Session) -> dict:
+        """Extrai TODOS os detalhes da página HTML da parcela para exibição."""
+        codigo = self._validate_parcela_code(codigo)
+        
+        cookies = self._build_cookies_dict(session)
+        
+        async with httpx.AsyncClient(
+            follow_redirects=True,
+            timeout=30.0,
+            cookies=cookies,
+            headers=self._get_headers(),
+        ) as client:
+            url = f"{self.base_url}/geo/parcela/detalhe/{codigo}/"
+            logger.info(f"Buscando detalhes da parcela em: {url}")
+            
+            response = await client.get(url)
+            
+            logger.info(f"Status da resposta: {response.status_code}")
+            
+            if response.status_code == 404:
+                raise ParcelaNotFoundError(codigo)
+            
+            if response.status_code != 200:
+                raise SigefError(
+                    f"Erro ao buscar detalhes da parcela: HTTP {response.status_code}"
+                )
+            
+            # Parse HTML
+            soup = BeautifulSoup(response.text, 'html.parser')
+            
+            detalhes = {
+                "codigo": codigo,
+                "url": url,
+                "informacoes_parcela": {},
+                "historico": {"quantidade": 0, "requerimentos": []},
+                "area_georreferenciada": {},
+                "detentores": [],
+                "registro": {}
+            }
+            
+            # Função auxiliar para extrair valor de uma linha da tabela
+            def extrair_campo_tabela(tabela, label: str) -> str | None:
+                """Busca um <th> com o label e retorna o texto do <td> correspondente."""
+                if not tabela:
+                    return None
+                th = tabela.find('th', string=re.compile(label, re.IGNORECASE))
+                if th:
+                    tr = th.find_parent('tr')
+                    if tr:
+                        td = tr.find('td')
+                        if td:
+                            return td.get_text(separator=' ', strip=True)
+                return None
+            
+            # === 1. INFORMAÇÕES DA PARCELA ===
+            # Busca pelo painel "Informações da parcela"
+            paineis = soup.find_all('div', class_='panel')
+            
+            for painel in paineis:
+                header = painel.find('div', class_='panel-header')
+                if not header:
+                    continue
+                    
+                header_text = header.get_text()
+                
+                # INFORMAÇÕES DA PARCELA
+                if 'Informações da parcela' in header_text:
+                    content = painel.find('div', class_='panel-content')
+                    if content:
+                        tabelas = content.find_all('table')
+                        
+                        # Primeira tabela: dados básicos
+                        if len(tabelas) > 0:
+                            tabela1 = tabelas[0]
+                            detalhes["informacoes_parcela"]["codigo"] = extrair_campo_tabela(tabela1, "Código")
+                            detalhes["informacoes_parcela"]["denominacao"] = extrair_campo_tabela(tabela1, "Denominação")
+                            detalhes["informacoes_parcela"]["area"] = extrair_campo_tabela(tabela1, "Área")
+                            detalhes["informacoes_parcela"]["data_entrada"] = extrair_campo_tabela(tabela1, "Data de Entrada")
+                            detalhes["informacoes_parcela"]["situacao"] = extrair_campo_tabela(tabela1, "Situação")
+                        
+                        # Segunda tabela: responsável técnico
+                        if len(tabelas) > 1:
+                            tabela2 = tabelas[1]
+                            detalhes["informacoes_parcela"]["responsavel_tecnico"] = extrair_campo_tabela(tabela2, "Responsável Técnico")
+                            detalhes["informacoes_parcela"]["documento_rt"] = extrair_campo_tabela(tabela2, "Documento de RT")
+                            
+                            # Data do envio (está em uma <td> após "Envio")
+                            th_envio = tabela2.find('th', string=re.compile('Envio', re.IGNORECASE))
+                            if th_envio:
+                                tr_envio = th_envio.find_parent('tr')
+                                if tr_envio:
+                                    tds = tr_envio.find_all('td')
+                                    if len(tds) > 1:
+                                        detalhes["informacoes_parcela"]["data_envio"] = tds[1].get_text(strip=True)
+                
+                # HISTÓRICO
+                elif 'Histórico' in header_text:
+                    # Extrai quantidade do título
+                    match_qtd = re.search(r'Qtd\.\s*Requerimentos:\s*(\d+)', header_text)
+                    if match_qtd:
+                        detalhes["historico"]["quantidade"] = int(match_qtd.group(1))
+                    
+                    content = painel.find('div', class_='panel-content')
+                    if content:
+                        tabela = content.find('table')
+                        if tabela:
+                            tbody = tabela.find('tbody')
+                            if tbody:
+                                rows = tbody.find_all('tr')
+                                for row in rows:
+                                    tds = row.find_all('td')
+                                    if len(tds) >= 3 and 'Nenhum requerimento' not in tds[0].get_text():
+                                        detalhes["historico"]["requerimentos"].append({
+                                            "requerimento": tds[0].get_text(strip=True),
+                                            "status": tds[1].get_text(strip=True),
+                                            "data": tds[2].get_text(strip=True)
+                                        })
+                
+                # ÁREA GEORREFERENCIADA
+                elif 'Área Georreferenciada' in header_text:
+                    content = painel.find('div', class_='panel-content')
+                    if content:
+                        tabela = content.find('table')
+                        if tabela:
+                            detalhes["area_georreferenciada"]["denominacao"] = extrair_campo_tabela(tabela, "Denominação")
+                            detalhes["area_georreferenciada"]["situacao"] = extrair_campo_tabela(tabela, "Situação")
+                            detalhes["area_georreferenciada"]["natureza"] = extrair_campo_tabela(tabela, "Natureza")
+                            detalhes["area_georreferenciada"]["codigo_incra"] = extrair_campo_tabela(tabela, "Código do Imóvel")
+                            detalhes["area_georreferenciada"]["numero_parcelas"] = extrair_campo_tabela(tabela, "Número parcelas")
+                            
+                            # Municípios (várias linhas após th "Municípios")
+                            municipios = []
+                            th_mun = tabela.find('th', string=re.compile('Municípios', re.IGNORECASE))
+                            if th_mun:
+                                tr_mun = th_mun.find_parent('tr')
+                                if tr_mun:
+                                    next_tr = tr_mun.find_next_sibling('tr')
+                                    while next_tr:
+                                        td = next_tr.find('td')
+                                        if td:
+                                            texto = td.get_text(strip=True)
+                                            # Para de buscar se encontrar outro <th> ou texto vazio
+                                            if texto and ' - ' in texto and not td.find('th'):
+                                                municipios.append(texto)
+                                                next_tr = next_tr.find_next_sibling('tr')
+                                            else:
+                                                break
+                                        else:
+                                            break
+                            detalhes["area_georreferenciada"]["municipios"] = municipios
+                
+                # IDENTIFICAÇÃO DO DETENTOR
+                elif 'detentor' in header_text.lower():
+                    content = painel.find('div', class_='panel-content')
+                    if content:
+                        tabela = content.find('table')
+                        if tabela:
+                            tbody = tabela.find('tbody')
+                            if tbody:
+                                rows = tbody.find_all('tr')
+                                for row in rows:
+                                    tds = row.find_all('td')
+                                    if len(tds) >= 2:
+                                        detalhes["detentores"].append({
+                                            "nome": tds[0].get_text(strip=True),
+                                            "cpf_cnpj": tds[1].get_text(strip=True)
+                                        })
+                
+                # INFORMAÇÕES DE REGISTRO
+                elif 'Registro' in header_text and 'Informações' in header_text:
+                    content = painel.find('div', class_='panel-content')
+                    if content:
+                        tabela = content.find('table')
+                        if tabela:
+                            detalhes["registro"]["cartorio"] = extrair_campo_tabela(tabela, "Cartório")
+                            detalhes["registro"]["municipio_uf"] = extrair_campo_tabela(tabela, "Município - UF")
+                            detalhes["registro"]["cns"] = extrair_campo_tabela(tabela, "Código Nacional de Serventia")
+                            detalhes["registro"]["matricula"] = extrair_campo_tabela(tabela, "Matrícula")
+                            detalhes["registro"]["situacao_registro"] = extrair_campo_tabela(tabela, "Situação do Registro")
+            
+            logger.info(f"Detalhes extraídos: {len(detalhes['informacoes_parcela'])} campos em info_parcela")
+            
+            return detalhes
     
     @retry(
         stop=stop_after_attempt(3),
@@ -548,3 +810,44 @@ class HttpSigefClient(ISigefClient):
             )
             
             return destino
+    
+    async def open_parcela_browser(self, codigo: str, session: Session) -> None:
+        """
+        Abre a página de detalhes da parcela em um navegador Playwright autenticado.
+        
+        Args:
+            codigo: Código SIGEF da parcela
+            session: Sessão autenticada
+        """
+        codigo = self._validate_parcela_code(codigo)
+        url = f"{self.base_url}/geo/parcela/detalhe/{codigo}/"
+        
+        logger.info(f"Abrindo página da parcela no navegador: {url}")
+        
+        def _open_browser():
+            with sync_playwright() as p:
+                # Abre navegador não-headless para o usuário ver
+                browser = p.chromium.launch(headless=False)
+                context = browser.new_context()
+                
+                # Adiciona cookies da sessão autenticada (Gov.br + SIGEF)
+                cookies_list = []
+                for cookie in session.govbr_cookies + session.sigef_cookies:
+                    cookies_list.append({
+                        "name": cookie.name,
+                        "value": cookie.value,
+                        "domain": cookie.domain or ".incra.gov.br",
+                        "path": cookie.path or "/",
+                    })
+                
+                context.add_cookies(cookies_list)
+                
+                # Abre página
+                page = context.new_page()
+                page.goto(url, wait_until="networkidle", timeout=30000)
+                
+                logger.info("Página aberta. Navegador permanecerá aberto para visualização.")
+                # Não fecha o navegador automaticamente - deixa o usuário navegar
+        
+        # Executa no thread pool para não bloquear
+        await asyncio.get_event_loop().run_in_executor(_executor, _open_browser)

@@ -1,0 +1,1753 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>SIGEF - Sistema de Gestão Fundiária</title>
+
+    <link rel="stylesheet" type="text/css" href="/static/bootstrap-2.2.2/css/bootstrap.min.css"/>
+    <link rel="stylesheet" type="text/css" href="/static/bootstrap-2.2.2/css/bootstrap-responsive.min.css"/>
+    <link rel="stylesheet" type="text/css"
+          href="/static/css/FortAwesome-Font-Awesome-13d5dd3/css/font-awesome.min.css"/> 
+
+    <!-- gov.br stylesheets -->
+    <!-- Fonte Rawline-->
+    <link rel="stylesheet" href="https://cdn.dsgovserprodesign.estaleiro.serpro.gov.br/design-system/fonts/rawline/css/rawline.css"/>
+    <!-- Fonte Raleway-->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway:300,400,500,600,700,800,900&amp;display=swap"/>
+    <!-- Design System de Governo-->
+    <!-- <link rel="stylesheet" href="/static/dsgov/dist/dsgov.min.css"/> -->
+    <link rel="stylesheet" href="/static/dsgov/dist/core.css"/>
+
+    <!--[if IE 7]>
+    <link rel="stylesheet" type="text/css" href="/static/css/FortAwesome-Font-Awesome-13d5dd3/css/font-awesome-ie7.min.css">
+    <![endif]-->
+
+    <link rel="stylesheet" href="/static/css/base.css?v=13"/>
+    <link rel="stylesheet" href="/static/css/layout.css"/>
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/static/img/favicon/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x23" href="/static/img/favicon/favicon32.png">
+    <link rel="icon" type="image/png" sizes="72x52" href="/static/img/favicon/favicon72.png">
+    <link rel="icon" type="image/png" sizes="128x93" href="/static/img/favicon/favicon128.png">
+    <link rel="icon" type="image/gif" href="/static/img/favicon/animated_favicon1.gif">
+
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <script src="/static/js/jquery-1.7.2.min.js"></script>
+    <script src="/static/js/bootstrap.min.js"></script>
+    <script src="/static/js/jquery.maskedinput-1.3.js"></script>
+    <script src="/static/js/base.js?v=01"></script>
+    <script>
+        var fk_widgets = {};
+        var fk_selecbox = {};
+        var STATIC_URL = '/static/';
+        var __status_tarefa_url__ = "/status_tarefa/0000/";
+        var __parcelas_kml_url__ = '/geo/parcelas.kml';
+        var __parcelas_selecionadas_url__ = '/geo/selecao_parcelas_listagem';
+        var __pesquisa_parcelas_url__ = '/consultar/parcelas';
+    </script>
+
+    
+    <link rel="stylesheet" type="text/css" href="/static/carto/css/mapsizepanel.css"/>
+
+    
+</head>
+
+
+
+
+
+
+<body>
+    <header class="br-header compact">
+  <div class="container-xl">
+      <div class="header-top">
+          <div class="header-logo">
+              <a target="_blank" href="https://www.gov.br/pt-br">
+                <img src="https://www.gov.br/++theme++padrao_govbr/img/govbr-logo-large.png" alt="Govbr"/>
+              </a>
+              <span class="br-divider vertical mx-half mx-sm-1"></span>
+              <div class="header-sign">Assinatura</div>
+          </div>
+      </div>
+
+      <div class="header-actions">
+        
+          <div class="dropdown"> 
+            <a href="#" class="br-button small" data-toggle="dropdown" title="Consultar">
+              <em class="icon-search" aria-hidden="true" style="padding-right: 3px"></em> Consultar
+            </a>
+            <span class="dropdown-menu">
+              <a class="br-item" href="/consultar/parcelas">Parcelas</a>
+              <a class="br-item" href="/consultar/requerimentos">Requerimentos</a>
+              
+                <a class="br-item" href="https://pro-pgt-incra.estaleiro.serpro.gov.br/pgt/consultar-credenciados" target="_blank">Credenciados</a>
+               
+              
+              
+                <a class="br-item" href="https://pro-pgt-incra.estaleiro.serpro.gov.br/pgt/estatisticas-sigef" target="_blank">Estatísticas</a>
+              
+            </span>
+          </div>
+        
+        <div class="dropdown"> 
+          <a href="#" class="br-button small" data-toggle="dropdown" title="Documentos">
+            <em class="icon-file" aria-hidden="true" style="padding-right: 3px"></em> Documentos
+          </a>
+          <span class="dropdown-menu" style="width: 400px">
+              <a class="br-item" href="/documentos/manual/">Manual do SIGEF</a>
+              <a class="br-item" href="/static/documentos/manual_geo_imoveis.pdf">Manual Técnico para Georreferenciamento de Imóveis Rurais 2022- MTGIR 2ª Edicao</a>
+              <a class="br-item" href="/static/documentos/manual_gestao_certif_v2.pdf">Manual de Gestão da Certificação de Imóveis Rurais - 2ª Edição</a>
+              <a class="br-item" href="/static/documentos/in_77.pdf">Instrução Normativa Nº 77 de 23 de agosto de 2013</a>
+              <a class="br-item" href="/static/documentos/portaria_205.pdf">Portaria Nº 2.502 de 2022</a>
+              <a class="br-item" href="/static/documentos/portaria_03_2023.pdf">Portaria Nº 03 de 2023</a>
+              <a class="br-item" href="/static/documentos/req_atua_parc_oc_987_2023.pdf">REQUERIMENTO DE ATUALIZAÇÃO DE PARCELA - OFÍCIO CIRCULAR Nº 987 de 2023</a>
+              <a class="br-item" href="/static/documentos/req_desm_oc_1237_2022.pdf">REQUERIMENTO DE DESMEMBRAMENTO - OFÍCIO CIRCULAR Nº 1237 de 2022</a>
+              <a class="br-item" href="/static/documentos/orientacoes_usocapiao_nt_3448_2021.pdf">ORIENTAÇÕES USUCAPIÃO - NOTA TÉCNICA Nº 3448-2021</a>
+              <a class="br-item" href="/static/sigef_planilha_modelo_1.4_rc5.ods">Planilha Eletrônica Modelo (ODS)</a>
+              <a class="br-item" href="/static/sigef_extensao_1.1_rc2.oxt">Extensão SIGEF (OXT)</a>
+          </span>
+        </div>
+        
+        <div class="dropdown" > 
+          <a href="#" class="br-button small" data-toggle="dropdown" title="Sobre">
+            <em class="icon-question-sign" aria-hidden="true" style="padding-right: 3px"></em> Sobre
+          </a>
+          <span class="dropdown-menu" style="width: 180px">
+            <a class="br-item" href="/sobre/apresentacao/">Apresentação</a>
+            <a class="br-item" href="/sobre/processo/">Entenda o Processo</a>
+            <a class="br-item" href="/sobre/acesso/">Acesso</a>
+            <a class="br-item" href="/sobre/tecnologia/">Tecnologia</a>
+            <a class="br-item" href="/sobre/equipe/">Equipe</a>
+            <a class="br-item" href="/sobre/faq/">Perguntas Frequentes</a>
+          </span>
+        </div>    
+
+      
+       
+          
+
+          
+          <div class="br-item">
+            <a href="/notificacoes/" class="br-button small" aria-label="Notificações" title="Notificações">
+              <em class="icon-info-sign" aria-hidden="true" style="padding-right: 3px"></em> Notificações
+              
+                <span class="badge bg-orange-vivid-30"> 1156</span>
+                
+            </a>  
+          </div>
+
+          
+              <div class="dropdown">
+                  <button class="br-sign-in" type="button" id="avatar-dropdown-trigger" data-toggle="dropdown" data-target="avatar-menu" aria-label="Avatar com dropdown">
+                  <span class="ml-2 text-weight-regular">Olá, <span class="text-weight-semi-bold">P</span>
+                  </span><i class="icon-caret-down" aria-hidden="true"></i>
+                  </button>
+                  <div class="dropdown-menu" id="avatar-menu" hidden="hidden">
+                      <a class="br-item" href="/usuario/home/">PAULO ANDRZEJEVSKI</br>(421.168.219-91)</a>
+                      <a class="br-item" href="/logout/" onclick="remover_visualizado()">Sair</a>
+                  </div>
+              </div>
+          
+
+      
+      </div>
+ 
+      <div class="header-bottom">
+        <div class="header-menu">
+          <div class="header-info">
+            <div class="header-title">
+              
+                  <a class="header-title" href="https://pro-pgt-incra.estaleiro.serpro.gov.br/pgt/principal">Plataforma de <strong>Governança Territorial</strong></a>
+               
+            </div>
+          </div>
+        </div>
+      </div>
+  </div>
+</header>
+
+
+
+    <!-- Google Tag Manager (noscript) -->
+      <noscript>
+        <iframe src="https://www.googletagmanager.com/ns.html?id=G-J0M3QNTCKQ"
+                height="0" width="0" style="display:none;visibility:hidden">
+        </iframe>
+      </noscript>
+    <!-- End Google Tag Manager (noscript) -->
+
+    <div class="container-xl mt-4">
+        <div class="row-fluid">
+            
+
+ 
+    <aside class="span2">
+      <div class="br-menu push active small">
+        <div class="menu-container position-static">
+          <div class="menu-panel h-auto position-static shadow-lg-right">
+            <nav class="menu-body">
+                
+                    <div class="menu-folder">
+                        <div class="menu-item"><span class="content">Certificação</span></div>
+                        <ul>
+                            <li><a class="menu-item" href="/"><span class="content">Página Inicial</span></a></li>
+                            
+                                <li><a class="menu-item" href="/requerimentos/"><span class="content">Requerimentos</span></a></li>
+                            
+                            
+                            
+                        </ul>
+                    </div>
+                             
+
+                
+                    <div class="menu-folder">
+                        <div class="menu-item"><span class="content">Destinação</span></div>
+                        <ul>
+                            
+                                <li><a class="menu-item" href="/submissao/submissao/destinacao/"><span class="content">Envios</span></a></li>
+                            
+                            
+                        </ul>
+                    </div>
+              
+              
+            </nav>
+          </div>
+        </div>
+      </div>
+</aside>
+
+  
+
+            <div class="span10">
+
+                 
+    
+                <!-- ModalDelete -->
+<div id="modelDelete" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="modelDeleteLabel" aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" onclick="$('#modelDelete').modal('hide')" aria-hidden="true">×</button>
+        <h3 id="modelDeleteLabel">Deletar</h3>
+    </div>
+    <div class="modal-body">
+        <p>Você tem certeza que deseja deletar este item: <div id="item"></div></p>
+    </div>
+    <div class="modal-footer">
+        <button class="br-button secondary small" onclick="$('#modelDelete').modal('hide')" aria-hidden="true">Fechar</button>
+        <button class="br-button primary small" onclick="confirm_delete()">Sim</button>
+    </div>
+</div>
+
+<!-- Modal Contato-->
+<div class="modal hide fade" id="contatoModal" tabindex="-1" role="dialog" aria-labelledby="contatoModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <span style="font:700 20px/32px Roboto,Helvetica Neue,sans-serif;" id="contatoModalLabel">
+                    Informações para Contato
+                </span><br><br>
+                <span>Qualquer duvida, entrar em contato com:</span>
+                <br><br>
+                <ul>
+                    <li>Coordenação Geral de Cartografia - DFG (coordenacao.cartografia@incra.gov.br)</li>
+                    <li>Divisão de Geomensura - DFG-1 (divisao.geomensura@incra.gov.br)</li>
+                </ul><br>
+                <div>
+                    <button type="button" class="mat-button" data-dismiss="modal">Ok</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Aviso-->
+<div class="modal hide fade" id="modalAviso" tabindex="-1" role="dialog" aria-labelledby="modalAvisoLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+            <div class="modal-body">
+                <span style="font:700 20px/32px Roboto,Helvetica Neue,sans-serif;" id="modalAvisoLabel">
+                    Atenção:
+                </span><br><br>
+                <span>Informamos que o sistema estará indisponível para atualização em 01/12/2021 das 18h às 19h</span>
+                <br>
+                <br>
+                <div>
+                    <button type="button" class="mat-button" data-dismiss="modal">Ok</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal Aviso Credenciado-->
+<div class="modal hide fade" id="modalAvisoCredenciado" tabindex="-1" role="dialog" aria-labelledby="modalAvisoCredenciadoLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+            <div class="modal-body">
+                <span style="font:700 20px/32px Roboto,Helvetica Neue,sans-serif;" id="modalAvisoCredenciadoLabel">
+                    Atenção:
+                </span><br><br>
+                <span>Para verificar suas certificações, acesse "consultar parcelas".</span>
+                <br>
+                <br>
+                <div>
+                    <button type="button" class="mat-button" data-dismiss="modal">Ok</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal Desmembramento indisponível -->
+<!--
+<div class="modal hide fade" id="modalDesmembramento" tabindex="-1" role="dialog" aria-labelledby="modalDesmembramentoLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">Desmembramento de parcelas indisponível</h5>
+          </div>
+        <div class="modal-body">
+            <p>Os requerimentos de DESMEMBRAMENTO / PARCELAMENTO estão temporariamente indisponíveis para ajustes na validação.</p>
+            <p>Em breve esta ferramenta estará operacional novamente.</p>
+            <p>Requerimentos que objetivem o desmembramento de uma certificação poderão ser protocolados via CANCELAMENTO com certificação associada.</p>
+            <div><button type="button" class="br-button primary small" data-dismiss="modal">Ok</button></div>
+        </div>
+      </div>
+    </div>
+</div>
+-->
+
+<!-- Modal entrada PGT -->
+<div class="modal hide fade" id="modalpgt" tabindex="-1" role="dialog" aria-labelledby="modalpgtLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">INFORMAÇÃO:</h5>
+          </div>
+        <div class="modal-body">
+            <!-- MUDAR ESTE TEXTO PARA A FUNCIONALIDADE DE ATUALIZAÇÃO DE PARCELA -->
+            <p>=============== COMUNICADO ===============</p>
+            <br>
+            <br>
+            <p>Informamos que a funcionalidade REQUERIMENTO DE ATUALIZAÇÃO DE PARCELA
+               está em operação no Sistema de Gestão Fundiária a partir de hoje.</p>
+            <br>
+            <p>Este tipo de requerimento objetiva atualizar as seguintes
+               informações dos vértices de uma parcela, mantendo a certificação:</p>
+            <br>
+            <p>• Código dos vértices;</p>
+            <p>• Altitude dos vértices;</p>
+            <p>• Inclusão de novos vértices em limites já existentes na parcela certificada.</p>
+            <p>• Substituição de um vértice por outro já certificado em parcela distinta, que esteja em um raio de 50 cm do vértice a ser alterado.</p>
+            <br>
+            <p>O requerimento de atualização somente poderá ser aberto pelo
+               responsável técnico da parcela a ser atualizada, através de
+               envio de planilha associada a qual passará pela mesma validação
+               de qualquer envio de certificação (apenas as atualizações dos
+               itens acima descrito são consideradas).</p>
+            <br>
+            <p>A atualização não descaracteriza o objeto certificado pelo
+               Incra conforme § 5° do art. 176 da Lei 6.015/73, o qual
+               continuará com mesmo código de certificação, responsável técnico
+               e documento de responsabilidade técnica, sendo garantida a
+               inexistência de sobreposição no cadastro georreferenciado do INCRA.</p>
+            <br>
+            <div><button type="button" class="br-button primary small" data-dismiss="modal">Ok</button></div>
+        </div>
+      </div>
+    </div>
+</div>
+
+    
+                
+
+                
+                
+    <div id="planta" style="width: 500px" class="modal fade">
+        <div class="modal-header">
+            <div class="block-title">
+                <small>
+                    <p style="text-align:center; margin-right:4%">Formato e Escala</p>
+                </small>
+            </div>
+        </div>
+        <div class="modal-body">
+            <div class="selecao" style="margin-left:12%; float:left">
+                <span style="font-weight: bold;">Formato (NBR 10068)</span>
+                <ul style="list-style-type: none; margin-left:40%;">
+                    <li class="nbr" onclick="AtualizaEscala('A0')">A0</li>
+                    <li class="nbr" onclick="AtualizaEscala('A1')">A1</li>
+                    <li class="nbr" onclick="AtualizaEscala('A2')">A2</li>
+                    <li class="nbr" onclick="AtualizaEscala('A3')">A3</li>
+                    <li class="nbr" onclick="AtualizaEscala('A4')">A4</li>
+                </ul>
+            </div>
+            <div class="selecao" style="margin-right:12%; float:right">
+                <span style="font-weight: bold;">Escala (NBR 8196)</span>
+                <ul style="list-style-type: none; margin-left: 30%">
+                    <li><a href="#" id="escala1" class="nbr" onclick="verificarEscala(1000,'escala1');">1:1000</a></li>
+                    <li><a href="#" id="escala2" class="nbr" onclick="verificarEscala(2000,'escala2');">1:2000</a></li>
+                    <li><a href="#" id="escala3" class="nbr" onclick="verificarEscala(5000,'escala3');">1:5000</a></li>
+                    <li><a href="#" id="escala4" class="nbr" onclick="verificarEscala(10000,'escala4');">1:10000</a></li>
+                    <li><a href="#" id="escala5" class="nbr" onclick="verificarEscala(25000,'escala5');">1:25000</a></li>
+                </ul>
+            </div>   
+        </div>
+        <div class="modal-footer">
+            <div style="padding-right: 17%; display: inline-block">
+                <a id="gerar" href="" class="br-button primary small" style="display: none;">Gerar Planta</a>
+                <button id="btn-gerar" class="br-button primary small" disabled>Gerar Planta</button>
+                &nbsp;&nbsp;
+                <strong style="font-size: 115%;">1:</strong>
+                <input id="escala" type="text" style="margin-top:5px;" name="escala" placeholder="Outra Escala">
+            </div>
+            <br/>
+            <strong id="erro-nao-suportado" style="padding-right: 18%; color: red; display: none;"> Escala não suportada! </strong>
+        </div>
+    </div>
+    <div id="plantas" style="width: 500px" class="modal fade">
+        <div class="modal-header">
+            <div class="block-title">
+                <small>
+                    <p style="text-align:center; margin-right:4%">Formato e Escala</p>
+                </small>
+            </div>
+        </div>
+        <div class="modal-body">
+            <div class="selecao" style="margin-left:12%; float:left">
+                <span style="font-weight: bold;">Formato (NBR 10068)</span>
+                <ul style="list-style-type: none; margin-left:40%;">
+                    <li class="nbr" onclick="AtualizaEscalas('A0')">A0</li>
+                    <li class="nbr" onclick="AtualizaEscalas('A1')">A1</li>
+                    <li class="nbr" onclick="AtualizaEscalas('A2')">A2</li>
+                    <li class="nbr" onclick="AtualizaEscalas('A3')">A3</li>
+                    <li class="nbr" onclick="AtualizaEscalas('A4')">A4</li>
+                </ul>
+            </div>
+            <div class="selecao" style="margin-right:12%; float:right">
+                <span style="font-weight: bold;">Escala (NBR 8196)</span>
+                <ul style="list-style-type: none; margin-left: 30%">
+                    <li><a href="#" id="escalas1" class="nbr" onclick="verificarEscalas(1000,'escalas1');">1:1000</a></li>
+                    <li><a href="#" id="escalas2" class="nbr" onclick="verificarEscalas(2000,'escalas2');">1:2000</a></li>
+                    <li><a href="#" id="escalas3" class="nbr" onclick="verificarEscalas(5000,'escalas3');">1:5000</a></li>
+                    <li><a href="#" id="escalas4" class="nbr" onclick="verificarEscalas(10000,'escalas4');">1:10000</a></li>
+                    <li><a href="#" id="escalas5" class="nbr" onclick="verificarEscalas(25000,'escalas5');">1:25000</a></li>
+                </ul>
+            </div>   
+        </div>
+        <div class="modal-footer">
+            <div style="padding-right: 17%; display: inline-block">
+                <a id="gerars" href="" class="br-button primary small" style="display: none;">Gerar Planta</a>
+                <button id="btn-gerars" class="br-button primary small" disabled>Gerar Planta</button>
+                &nbsp;&nbsp;
+                <strong style="font-size: 115%;">1:</strong>
+                <input id="escalas" type="text" style="margin-top:5px;" name="escala" placeholder="Outra Escala">
+            </div>
+            <br/>
+            <strong id="erros-nao-suportado" style="padding-right: 18%; color: red; display: none;"> Escala não suportada! </strong>
+        </div>
+    </div>
+    
+
+    
+
+    
+
+    
+    <div class="panel dv-expandable">
+        <div class="panel-header">
+            <i class="icon-copy"></i>
+
+            <div style="float:right;">
+                <a href="#" class="expand open" title="Clique para fechar"><i
+                        class="icon-minus-sign"></i></a>
+            </div>
+            Documentos
+        </div>
+        <div class="panel-content">
+            <div class="row-fluid">
+                <div class="control-group">
+                    <small>Parcela</small><br />
+                    <a href="#planta" data-toggle="modal" class="br-button secondary small">
+                        <i class="icon-globe"></i>
+                        Planta
+                    </a>
+                    <a href="/geo/parcela/memorial/f7fd7a57-4858-4453-b132-74e74dee2101/" class="br-button primary small">
+                        <i class="icon-list-alt"></i>
+                        Memorial Descritivo
+                    </a>            
+                </div>
+
+                
+
+            </div>
+        </div>
+    </div>
+    
+
+    
+    <div class="panel dv-expandable">
+        <div class="panel-header">
+            <div style="float:right;"> <a href="#" class="expand open" title="Clique para fechar"><i class="icon-minus-sign"></i></a></div>
+            Informações da parcela
+        </div>
+        <div class="panel-content">
+            <table class="table table-hover tabela-atributos">
+
+    <tr>
+        <th>Código</th>
+        <td>f7fd7a57-4858-4453-b132-74e74dee2101</td>
+    </tr>
+
+    <tr>
+        <th>Denominação</th>
+        <td>Fazenda Monte Sião - Fazenda Monte Sião</td>
+    </tr>
+
+    <tr>
+        <th>Área</th>
+        <td>327,8232 ha</td>
+    </tr>
+
+
+
+    
+    <tr>
+        <th>Data de Entrada</th>
+        <td>26/09/2016</td>
+    </tr>
+    
+
+    <tr>
+        <th>Situação</th>
+        <td>
+            
+            Certificada - Sem Confirmação de Registro em Cartório<br />
+            <small>Parcela certificada pelo SIGEF de acordo com a Lei 6.015/73 e pendente de confirmação do registro da certificação em cartório</small>
+            
+        </td>
+    </tr>
+
+</table>
+
+            <table class="table table-hover tabela-atributos">
+                
+                
+                <tr>
+                    <th>Responsável Técnico(a)</th><td>
+                        
+                            VALDEMIR ANTUNES DOS SANTOS (ESK)
+                        
+                    </td>
+                </tr>
+                <tr>
+                    <th>Documento de RT</th><td>20164127366 - PR</td>
+                </tr>
+                
+                <tr>
+                    <th>Envio</th>
+                    <td>
+                        <a href="/submissao/submissao/1144064/">
+                            <i class="icon-upload"></i>
+                            Envio
+                        </a>
+                    </td>
+                    <td>
+                        26/09/2016
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div class="panel dv-expandable">
+        <div class="panel-header">
+            <div style="float:right;"> <a href="#" class="expand open" title="Clique para fechar"><i class="icon-minus-sign"></i></a></div>
+            Histórico (Qtd. Requerimentos: 0)
+        </div>
+        <div class="panel-content">
+            <table class="table table-hover tabela-atributos">
+                <thead>
+                    <tr>
+                        <th>Requerimento</th>
+                        <th>Status</th>
+                        <th>Data</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                        <tr><td colspan="3">Nenhum requerimento</td></tr>
+                    
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="panel dv-expandable">
+        <div class="panel-header">
+            <div style="float:right;"><a href="#" class="expand open" title="Clique para fechar"><i class="icon-minus-sign"></i></a></div>
+             Informações da Área Georreferenciada
+        </div>
+        <div class="panel-content">
+            <table class="table table-hover tabela-atributos">
+                <tr>
+                    <th>Denominação</th><td>Fazenda Monte Sião</td>
+                </tr>
+           
+                
+                <tr>
+                    <th>Situação</th><td>Imóvel Registrado</td>
+                </tr>
+                
+                <tr>
+                    <th>Natureza</th><td>Particular</td>
+                </tr>
+                
+                <tr>
+                    <th>Código do Imóvel (SNCR/INCRA)</th><td>7010410216443 </td>
+                </tr>
+                
+                <tr>
+                    <th>Número parcelas</th><td>1</td>
+                </tr>
+                <tr>
+                    <th colspan="2">Parcelas</th>
+                </tr>
+                
+                    <tr>
+                        
+                            
+                            <td colspan="2"><a class="links" href="/geo/parcela/detalhe/f7fd7a57-4858-4453-b132-74e74dee2101/">Fazenda Monte Sião</a>
+                                <i class="icon-asterisk"></i>
+                            </td>
+                            
+                        
+                    </tr>
+                
+                <tr>
+                    <th colspan="2">Municípios</th>
+                </tr>
+                
+                <tr>
+                    <td colspan="2">Bocaiúva do Sul - PR</td>
+                </tr>
+                
+            </table>
+        </div>
+    </div>
+
+    
+
+    <div class="panel dv-expandable">
+        <div class="panel-header">
+            <div style="float:right;">
+                <a href="#" class="expand open" title="Clique para fechar"><i
+                        class="icon-minus-sign"></i></a>
+            </div>
+            Identificação do(a) detentor(a)
+        </div>
+        <div class="panel-content">
+            
+
+    <table class="table table-hover tabela-atributos">
+        <thead>
+        <tr>
+            <th>Nome</th>
+            <th>CPF/CNPJ</th>
+        </tr>
+        </thead>
+        <tbody>
+
+        
+
+            <tr>
+                <td>XXXXXXADMINISTRACAO PATRIMONIAXXXXXX</td>
+                <td>**.*32.602/0001**</td>
+            </tr>
+
+        
+
+        </tbody>
+    </table>
+
+
+        </div>
+    </div>
+
+    
+    <div class="panel dv-expandable">
+        <div class="panel-header">
+            <div style="float:right;">
+                <a href="javascript:void(0)" class="expand open" title="Clique para fechar"><i
+                        class="icon-minus-sign"></i></a>
+            </div>
+            Informações de Registro
+        </div>
+        <div class="panel-content">
+            <table class="table table-hover tabela-atributos">
+    
+        <tr>
+            <th>Cartório</th>
+            <td>SERVIÇO DE REGISTRO DE IMÓVEIS</td>
+        </tr>
+        <tr>
+            <th>Município - UF</th>
+            <td>Bocaiúva do Sul - PR</td>
+        </tr>        
+        <tr>
+            <th>Código Nacional de Serventia (CNS)</th>
+            <td>08.504-3</td>
+        </tr>
+        <tr>
+            <th>
+                
+                    Matrícula
+                
+            </th>
+            <td>714;2012;2013 e 2390</td>
+        </tr>
+    
+    <tr class="error">
+        <th>
+            Situação do Registro
+            <a data-toggle="tooltip" title="Indica se a informação de registro da certificação em cartório foi confirmada no SIGEF por meio do requerimento de registro"><i class="icon-question-sign"></i></a>
+        </th>
+        
+        <td>
+            
+            Não confirmado
+            
+        </td>
+    </tr>
+
+</table>
+
+        </div>
+    </div>
+    
+
+    <div class="panel dv-expandable">
+        <div class="panel-header">
+            <div style="float:right;">
+                <a href="#" class="expand open" title="Clique para fechar"><i class="icon-minus-sign"></i></a>
+            </div>
+            Mapa da parcela
+        </div>
+        <div class="panel-content panel-content-mapa">
+            <div class="mapa" id="mapa"></div>
+        </div>
+    </div>
+
+    <div class="panel dv-expandable">
+        <div class="panel-header">
+            <div style="float:right;">
+                <a href="#" class="expand open" title="Clique para fechar"><i
+                        class="icon-minus-sign"></i></a>
+            </div>
+            Vértices da parcela
+        </div>
+        <div class="panel-content">
+            
+
+<table class="table table-hover ">
+    <thead>
+    <tr>
+        <th>Código</th>
+        <th>Longitude</th>
+        <th>Sigma Long. (m)</th>
+        <th>Latitude</th>
+        <th>Sigma Lat. (m)</th>
+        <th>Altitude (m)</th>
+        <th>Sigma Altitude (m)</th>
+        <th>Método Posicionamento</th>
+    </tr>
+    </thead>
+    <tbody>
+
+    
+        <tr>
+            <td>ESK-M-0247</td>
+
+            <td>-49°09&#39;21,742&quot;</td>
+            <td>0,01</td>
+
+            <td>-25°08&#39;24,147&quot;</td>
+            <td>0,01</td>
+
+            <td>1030,28</td>
+            <td>0,01</td>
+
+            <td>PG1</td>
+        </tr>
+    
+        <tr>
+            <td>ESK-M-0248</td>
+
+            <td>-49°09&#39;20,489&quot;</td>
+            <td>0,02</td>
+
+            <td>-25°08&#39;24,734&quot;</td>
+            <td>0,02</td>
+
+            <td>1229,56</td>
+            <td>0,01</td>
+
+            <td>PG1</td>
+        </tr>
+    
+        <tr>
+            <td>ESK-M-0249</td>
+
+            <td>-49°09&#39;20,187&quot;</td>
+            <td>0,01</td>
+
+            <td>-25°08&#39;25,796&quot;</td>
+            <td>0,01</td>
+
+            <td>1007,7</td>
+            <td>0,02</td>
+
+            <td>PG1</td>
+        </tr>
+    
+        <tr>
+            <td>ESK-M-0250</td>
+
+            <td>-49°09&#39;19,922&quot;</td>
+            <td>0,01</td>
+
+            <td>-25°08&#39;26,290&quot;</td>
+            <td>0,01</td>
+
+            <td>1028,38</td>
+            <td>0,01</td>
+
+            <td>PG1</td>
+        </tr>
+    
+        <tr>
+            <td>ESK-M-0251</td>
+
+            <td>-49°09&#39;19,153&quot;</td>
+            <td>0,02</td>
+
+            <td>-25°08&#39;26,425&quot;</td>
+            <td>0,02</td>
+
+            <td>1053,75</td>
+            <td>0,01</td>
+
+            <td>PG1</td>
+        </tr>
+    
+        <tr>
+            <td>ESK-M-0252</td>
+
+            <td>-49°09&#39;16,610&quot;</td>
+            <td>0,01</td>
+
+            <td>-25°08&#39;28,569&quot;</td>
+            <td>0,01</td>
+
+            <td>1046,24</td>
+            <td>0,02</td>
+
+            <td>PG1</td>
+        </tr>
+    
+        <tr>
+            <td>ESK-M-0253</td>
+
+            <td>-49°09&#39;15,566&quot;</td>
+            <td>0,01</td>
+
+            <td>-25°08&#39;28,545&quot;</td>
+            <td>0,01</td>
+
+            <td>1048,63</td>
+            <td>0,07</td>
+
+            <td>PG1</td>
+        </tr>
+    
+        <tr>
+            <td>ESK-M-0254</td>
+
+            <td>-49°09&#39;14,514&quot;</td>
+            <td>0,02</td>
+
+            <td>-25°08&#39;29,242&quot;</td>
+            <td>0,02</td>
+
+            <td>1049,62</td>
+            <td>0,01</td>
+
+            <td>PG1</td>
+        </tr>
+    
+        <tr>
+            <td>ESK-M-0255</td>
+
+            <td>-49°09&#39;13,486&quot;</td>
+            <td>0,01</td>
+
+            <td>-25°08&#39;29,455&quot;</td>
+            <td>0,01</td>
+
+            <td>1047,84</td>
+            <td>0,01</td>
+
+            <td>PG1</td>
+        </tr>
+    
+        <tr>
+            <td>ESK-M-0256</td>
+
+            <td>-49°09&#39;13,135&quot;</td>
+            <td>0,02</td>
+
+            <td>-25°08&#39;29,753&quot;</td>
+            <td>0,02</td>
+
+            <td>1050,98</td>
+            <td>0,01</td>
+
+            <td>PG1</td>
+        </tr>
+    
+
+    </tbody>
+    <tfoot>
+        <tr>
+            <th colspan="1">
+                
+                    <div class="form-group total-registros-pagina pull-left"></div>
+                
+            </th>
+            <th colspan="7">
+                <div class="pull-right">
+                    
+                        
+	<div class="br-pagination">
+		<ul>
+			
+				<li class="page-count disabled">
+					<a class="br-button circle" href="#" aria-label="Página anterior">
+						<i class="icon-chevron-left" aria-hidden="true"></i>
+					</a>
+				</li>
+			
+
+			
+				 
+					
+						<li class="page-count active"><a class="br-button circle page active">1</a></li>
+					
+				
+			
+				 
+					
+						<li class="page-count"><a class="br-button circle" href="?page=2&limit=10">2</a></li>
+					
+				
+			
+				 
+					
+						<li class="page-count"><a class="br-button circle" href="?page=3&limit=10">3</a></li>
+					
+				
+			
+				 
+					
+						<li class="page-count"><a class="br-button circle" href="?page=4&limit=10">4</a></li>
+					
+				
+			
+				 
+					
+						<li class="page-count active"><a class="br-button circle" href="javascript:void(0)">...</a></li>
+					
+				
+			
+				
+			
+				
+			
+				
+			
+				
+			
+				
+			
+				
+			
+				
+			
+				
+			
+				
+			
+				
+			
+				 
+					
+						<li class="page-count"><a class="br-button circle" href="?page=16&limit=10">16</a></li>
+					
+				
+			
+				 
+					
+						<li class="page-count"><a class="br-button circle" href="?page=17&limit=10">17</a></li>
+					
+				
+			
+				 
+					
+						<li class="page-count"><a class="br-button circle" href="?page=18&limit=10">18</a></li>
+					
+				
+			
+				 
+					
+						<li class="page-count"><a class="br-button circle" href="?page=19&limit=10">19</a></li>
+					
+				
+			
+
+			
+				<li class="page-count">
+					<a class="br-button circle" href="?page=2&limit=10" aria-label="Página seguinte">
+						<i class="icon-chevron-right" aria-hidden="true"></i>
+					</a>
+				</li>
+			
+		</ul>
+	</div>
+
+                    
+                </div>
+            </th>
+        </tr>
+    </tfoot>
+</table>
+
+        </div>
+    </div>
+
+    <div class="panel dv-expandable">
+        <div class="panel-header">
+            <div style="float:right;">
+                <a href="#" class="expand open" title="Clique para fechar"><i
+                        class="icon-minus-sign"></i></a>
+            </div>
+            Limites
+        </div>
+        <div class="panel-content">
+            <table class="table table-hover ">
+    <thead>
+    <tr>
+        <th>Do Vértice</th>
+        <th>Ao Vértice</th>
+        <th>Tipo</th>
+        <th>Lado</th>
+        <th>Azimute</th>
+        <th>Comprimento (m)</th>
+        <th>Confrontante</th>
+    </tr>
+    </thead>
+    <tbody>
+
+    
+        <tr>
+            <td>ESK-M-0247</td>
+            <td>ESK-M-0248</td>
+            <td>LA1</td>
+            <td>EXTERNO</td>
+            <td>117°13&#39;</td>
+            <td>39,48</td>
+            <td>
+                
+                    Pró Consult Projeto Consultoria e Construção Ltda.
+                
+            </td>
+        </tr>
+    
+        <tr>
+            <td>ESK-M-0248</td>
+            <td>ESK-M-0249</td>
+            <td>LA1</td>
+            <td>EXTERNO</td>
+            <td>165°29&#39;</td>
+            <td>33,78</td>
+            <td>
+                
+                    Pró Consult Projeto Consultoria e Construção Ltda.
+                
+            </td>
+        </tr>
+    
+        <tr>
+            <td>ESK-M-0249</td>
+            <td>ESK-M-0250</td>
+            <td>LA1</td>
+            <td>EXTERNO</td>
+            <td>153°55&#39;</td>
+            <td>16,92</td>
+            <td>
+                
+                    Pró Consult Projeto Consultoria e Construção Ltda.
+                
+            </td>
+        </tr>
+    
+        <tr>
+            <td>ESK-M-0250</td>
+            <td>ESK-M-0251</td>
+            <td>LA1</td>
+            <td>EXTERNO</td>
+            <td>100°55&#39;</td>
+            <td>21,94</td>
+            <td>
+                
+                    Pró Consult Projeto Consultoria e Construção Ltda.
+                
+            </td>
+        </tr>
+    
+        <tr>
+            <td>ESK-M-0251</td>
+            <td>ESK-M-0252</td>
+            <td>LA1</td>
+            <td>EXTERNO</td>
+            <td>132°48&#39;</td>
+            <td>97,08</td>
+            <td>
+                
+                    Pró Consult Projeto Consultoria e Construção Ltda.
+                
+            </td>
+        </tr>
+    
+        <tr>
+            <td>ESK-M-0252</td>
+            <td>ESK-M-0253</td>
+            <td>LA1</td>
+            <td>EXTERNO</td>
+            <td>88°33&#39;</td>
+            <td>29,27</td>
+            <td>
+                
+                    Pró Consult Projeto Consultoria e Construção Ltda.
+                
+            </td>
+        </tr>
+    
+        <tr>
+            <td>ESK-M-0253</td>
+            <td>ESK-M-0254</td>
+            <td>LA1</td>
+            <td>EXTERNO</td>
+            <td>126°03&#39;</td>
+            <td>36,47</td>
+            <td>
+                
+                    Pró Consult Projeto Consultoria e Construção Ltda.
+                
+            </td>
+        </tr>
+    
+        <tr>
+            <td>ESK-M-0254</td>
+            <td>ESK-M-0255</td>
+            <td>LA1</td>
+            <td>EXTERNO</td>
+            <td>102°49&#39;</td>
+            <td>29,51</td>
+            <td>
+                
+                    Pró Consult Projeto Consultoria e Construção Ltda.
+                
+            </td>
+        </tr>
+    
+        <tr>
+            <td>ESK-M-0255</td>
+            <td>ESK-M-0256</td>
+            <td>LA1</td>
+            <td>EXTERNO</td>
+            <td>132°58&#39;</td>
+            <td>13,45</td>
+            <td>
+                
+                    Pró Consult Projeto Consultoria e Construção Ltda.
+                
+            </td>
+        </tr>
+    
+        <tr>
+            <td>ESK-M-0256</td>
+            <td>ESK-M-0257</td>
+            <td>LA1</td>
+            <td>EXTERNO</td>
+            <td>126°18&#39;</td>
+            <td>16,41</td>
+            <td>
+                
+                    Pró Consult Projeto Consultoria e Construção Ltda.
+                
+            </td>
+        </tr>
+    
+    </tbody>
+    <tfoot>
+        <tr>
+            <th colspan="7">
+                <div class="pull-right">
+                    
+                        
+	<div class="br-pagination">
+		<ul>
+			
+				<li class="page-count disabled">
+					<a class="br-button circle" href="#" aria-label="Página anterior">
+						<i class="icon-chevron-left" aria-hidden="true"></i>
+					</a>
+				</li>
+			
+
+			
+				 
+					
+						<li class="page-count active"><a class="br-button circle page active">1</a></li>
+					
+				
+			
+				 
+					
+						<li class="page-count"><a class="br-button circle" href="?page=2&limit=10">2</a></li>
+					
+				
+			
+				 
+					
+						<li class="page-count"><a class="br-button circle" href="?page=3&limit=10">3</a></li>
+					
+				
+			
+				 
+					
+						<li class="page-count"><a class="br-button circle" href="?page=4&limit=10">4</a></li>
+					
+				
+			
+				 
+					
+						<li class="page-count active"><a class="br-button circle" href="javascript:void(0)">...</a></li>
+					
+				
+			
+				
+			
+				
+			
+				
+			
+				
+			
+				
+			
+				
+			
+				
+			
+				
+			
+				
+			
+				
+			
+				 
+					
+						<li class="page-count"><a class="br-button circle" href="?page=16&limit=10">16</a></li>
+					
+				
+			
+				 
+					
+						<li class="page-count"><a class="br-button circle" href="?page=17&limit=10">17</a></li>
+					
+				
+			
+				 
+					
+						<li class="page-count"><a class="br-button circle" href="?page=18&limit=10">18</a></li>
+					
+				
+			
+				 
+					
+						<li class="page-count"><a class="br-button circle" href="?page=19&limit=10">19</a></li>
+					
+				
+			
+
+			
+				<li class="page-count">
+					<a class="br-button circle" href="?page=2&limit=10" aria-label="Página seguinte">
+						<i class="icon-chevron-right" aria-hidden="true"></i>
+					</a>
+				</li>
+			
+		</ul>
+	</div>
+
+                    
+                </div>
+            </th>
+        </tr>
+    </tfoot>
+</table>
+
+        </div>
+    </div>
+
+    <div class="panel dv-expandable">
+        <div class="panel-header">
+            <div style="float:right;">
+                <a href="#" class="expand open" title="Clique para fechar"><i
+                        class="icon-minus-sign"></i></a>
+            </div>
+            Ações
+        </div>
+        <div class="panel-content">
+            
+                
+
+
+<div class="btn-toolbar">
+       
+         
+       
+       <a href="/requerimentos/registro/novo/?p=438044" data-toggle="tooltip" title="Informar Registro"
+          class="br-button  small ">
+       <i class="icon-legal"></i>
+       
+       Registro
+       
+       </a>
+       
+       <a href="#" data-toggle="tooltip" title="Remembrar"
+          class="br-button  small ">
+       <i class="icon-link"></i>
+       
+       Remembrar
+       
+       </a>
+       
+       
+       
+       <a data-toggle="tooltip" title="Cancelar" href="/requerimentos/cancelamento/novo/?p=438044"
+          class="br-button  small ">
+       <i class="icon-ban-circle"></i>
+       
+       Cancelar
+       
+       </a>
+       <a href="/requerimentos/retificacao/novo/?p=438044" data-toggle="tooltip" title="Retificar"
+         class="br-button  small ">
+      <i class="icon-pencil"></i>
+      
+      Retificar
+      
+      </a>
+       
+       
+
+       <div class="btn-group dropup">
+          <a href="javascript:void(0)" class="br-button  small"  data-toggle="dropdown">
+          <i class="icon-cloud-download"></i>
+          
+          Exportar
+          
+          </a>
+          <ul class="dropdown-menu">
+             <li class="nav-header">shapefile</li>
+             <li>
+                
+                <a href="/geo/exportar/parcela/shp/f7fd7a57-4858-4453-b132-74e74dee2101/"><i class="icon-check-empty"></i>Polígono</a>
+                
+             </li>
+             <li>
+                
+                <a href="/geo/exportar/vertice/shp/f7fd7a57-4858-4453-b132-74e74dee2101/"><i class="icon-map-marker"></i>Vértices</a>
+                
+             </li>
+             <li>
+                
+                <a href="/geo/exportar/limite/shp/f7fd7a57-4858-4453-b132-74e74dee2101/"><i class="icon-minus"></i>Limites</a>
+                
+             </li>
+             <li class="divider"></li>
+             <li class="nav-header">KML</li>
+             <li>
+                
+                <a href="/geo/exportar/parcela/kml/f7fd7a57-4858-4453-b132-74e74dee2101/"> <i class="icon-check-empty"></i>Polígono</a>
+                
+             </li>
+             <li>
+                
+                <a href="/geo/exportar/vertice/kml/f7fd7a57-4858-4453-b132-74e74dee2101/"><i class="icon-map-marker"></i>Vértices</a>
+                
+             </li>
+             <li>
+                
+                <a href="/geo/exportar/limite/kml/f7fd7a57-4858-4453-b132-74e74dee2101/"><i class="icon-minus"></i>Limites</a>
+                
+             </li>
+             <li class="divider"></li>
+             <li class="nav-header">CSV</li>
+             <li>
+                
+                <a href="/geo/exportar/parcela/csv/f7fd7a57-4858-4453-b132-74e74dee2101/"><i class="icon-check-empty"></i>Polígono</a>
+                
+             </li>
+             <li>
+                
+                <a href="/geo/exportar/vertice/csv/f7fd7a57-4858-4453-b132-74e74dee2101/"><i class="icon-map-marker"></i>Vértices</a>
+                
+             </li>
+             <li>
+                
+                <a href="/geo/exportar/limite/csv/f7fd7a57-4858-4453-b132-74e74dee2101/"><i class="icon-minus"></i>Limites</a>
+                
+             </li>
+          </ul>
+       </div>
+ </div>
+
+            
+        </div>
+    </div>
+    <div id="escalaA0" style="display: none;"></div>
+    <div id="escalaA1" style="display: none;"></div>
+    <div id="escalaA2" style="display: none;"></div>
+    <div id="escalaA3" style="display: none;"></div>
+    <div id="escalaA4" style="display: none;"></div>
+
+<script>
+//planta
+function verificaInput() {
+    var input = document.getElementById("escala");
+    var botom = document.getElementById("gerar");
+   
+    if(parseInt(input.value) < parseInt(document.getElementById('escalaA0').innerText) || isNaN(parseInt(input.value)) == true){
+        $('#btn-gerar').show();
+        $('#gerar').hide();
+        $('#erro-nao-suportado').show();
+        $('#escala').css("box-shadow", "0 0px 3px 2px rgba(255, 0, 0, 0.75) inset"); 
+        botom.href = " ";
+    }else{
+        $('#btn-gerar').hide();
+        $('#gerar').show();
+        $('#erro-nao-suportado').hide();
+        $('#escala').css("box-shadow", "none");
+        botom.href = "//" + location.host + "/geo/parcela/planta/f7fd7a57-4858-4453-b132-74e74dee2101/"+ parseInt(input.value) +"/";
+    }
+}
+
+$("#escala").keydown(function () {
+    $(this).val(this.value.replace(/\D/g, ''));
+    verificaInput();
+});
+$("#escala").keyup(function () {
+    $(this).val(this.value.replace(/\D/g, ''));
+    verificaInput(); 
+});
+
+//plantas
+function verificaInput2() {
+    var inputs = document.getElementById("escalas");
+    var botoms = document.getElementById("gerars");
+
+    if(parseInt(inputs.value) < parseInt(document.getElementById('escalaA0').innerText) || isNaN(parseInt(inputs.value)) == true){
+        $('#btn-gerars').show();
+        $('#gerars').hide();
+        $('#erros-nao-suportado').show();
+        $('#escalas').css("box-shadow", "0 0px 3px 2px rgba(255, 0, 0, 0.75) inset"); 
+        botoms.href = " ";
+    }else{
+        $('#btn-gerars').hide();
+        $('#gerars').show();
+        $('#erros-nao-suportado').hide();
+        $('#escalas').css("box-shadow", "none");
+        botoms.href = "//" + location.host + "/imoveis/imovel/389544/plantas/"+ parseInt(inputs.value) +"/";
+    }
+}
+
+$("#escalas").keydown(function () {
+    $(this).val(this.value.replace(/\D/g, ''));
+    verificaInput2();
+});
+$("#escalas").keyup(function () {
+    $(this).val(this.value.replace(/\D/g, ''));
+    verificaInput2(); 
+});
+
+function verificarEscala(escala,id){
+    var aux = ["escala1","escala2","escala3","escala4","escala5"];
+    if(escala < parseInt(document.getElementById('escalaA0').innerText)){
+        for (var i = 0; i < aux.length; i++) { 
+            document.getElementById(aux[i]).classList.remove('erro');
+            document.getElementById(aux[i]).classList.add('nbr');
+        }
+        document.getElementById(id).classList.add('erro');
+        document.getElementById(id).classList.remove('nbr');
+    }else{
+        for (var i = 0; i < aux.length; i++) { 
+            document.getElementById(aux[i]).classList.remove('erro');
+            document.getElementById(aux[i]).classList.add('nbr');
+        }
+        $('#erro-nao-suportado').hide();
+        $('#btn-gerar').hide();
+        $('#gerar').show();
+        $('#escala').css("box-shadow", "none");
+        document.getElementById("escala").value = escala;
+        document.getElementById("gerar").href = "//" + location.host + "/geo/parcela/planta/f7fd7a57-4858-4453-b132-74e74dee2101/"+ escala +"/";
+    }
+}
+
+function verificarEscalas(escala,id){
+    var aux = ["escalas1","escalas2","escalas3","escalas4","escalas5"];
+    if(escala < parseInt(document.getElementById('escalaA0').innerText)){
+        for (var i = 0; i < aux.length; i++) { 
+            document.getElementById(aux[i]).classList.remove('erro');
+            document.getElementById(aux[i]).classList.add('nbr');
+        }
+        document.getElementById(id).classList.add('erro');
+        document.getElementById(id).classList.remove('nbr');
+    }else{
+        for (var i = 0; i < aux.length; i++) { 
+            document.getElementById(aux[i]).classList.remove('erro');
+            document.getElementById(aux[i]).classList.add('nbr');
+        }
+        $('#erros-nao-suportado').hide();
+        $('#btn-gerars').hide();
+        $('#gerars').show();
+        $('#escalas').css("box-shadow", "none");
+        document.getElementById("escalas").value = escala;
+        document.getElementById("gerars").href = "//" + location.host + "/imoveis/imovel/389544/plantas/"+ escala +"/";
+    }
+}
+
+function AtualizaEscala(folha){
+    var aux = ["escala1","escala2","escala3","escala4","escala5"];
+    for (var i = 0; i < aux.length; i++) { 
+        document.getElementById(aux[i]).classList.remove('erro');
+        document.getElementById(aux[i]).classList.add('nbr');
+    }
+    $('#erro-nao-suportado').hide();
+    $('#escala').css("box-shadow", "none");
+    document.getElementById("escala").value = parseInt(document.getElementById('escala' + folha).innerText);
+    document.getElementById("gerar").href = "//" + location.host + "/geo/parcela/planta/f7fd7a57-4858-4453-b132-74e74dee2101/"+ parseInt(document.getElementById('escala' + folha).innerText) +"/"; 
+    $('#gerar').show();
+    $('#btn-gerar').hide();
+}
+
+function AtualizaEscalas(folha){
+    var aux = ["escalas1","escalas2","escalas3","escalas4","escalas5"];
+    for (var i = 0; i < aux.length; i++) { 
+        document.getElementById(aux[i]).classList.remove('erro');
+        document.getElementById(aux[i]).classList.add('nbr');
+    }
+    $('#erros-nao-suportado').hide();
+    $('#escalas').css("box-shadow", "none");
+    document.getElementById("escalas").value = parseInt(document.getElementById('escala' + folha).innerText);
+    document.getElementById("gerars").href = "//" + location.host + "/imoveis/imovel/389544/plantas/" + parseInt(document.getElementById('escala' + folha).innerText) +"/";
+    $('#gerars').show();
+    $('#btn-gerars').hide();
+}
+</script>
+
+
+            </div>
+        </div>
+        <footer class="br-footer">
+    <div class="container-xl">
+      <div class="d-none d-sm-block">     
+        <div class="row align-items-end justify-content-between py-5">
+          <div class="col social-network">
+            <p class="text-up-01 text-extra-bold text-uppercase">
+              Redes Sociais
+            </p>
+            <a href="https://www.facebook.com/gov.incra" target="_blank" aria-label="Facebook Incra">
+              <i class="icon-facebook pr-4" aria-hidden="true"></i>
+            </a>
+            <a href="https://www.instagram.com/gov.incra" target="_blank" aria-label="Instagram Incra">
+              <em class="icon-camera pr-4" aria-hidden="true"></em>
+            </a>
+            <a href="https://twitter.com/gov_incra" target="_blank" aria-label="Twitter Incra">
+              <em class="icon-twitter pr-4" aria-hidden="true"></em>
+            </a>
+          </div>
+<div class="col assigns text-right">
+             <a href="https://www.gov.br" target="_blank">
+                 <img class="ml-4" src="/static/img/logo-govbr.png" alt="Portal Govbr" width="14%" />
+             </a>
+             <a href="https://www.gov.br/incra" target="_blank">
+               <img class="ml-4" src="/static/img/logo-incra-horizontal.png" alt="Incra" width="18%" />
+             </a>
+             <a href="https://www.gov.br/agricultura" target="_blank">
+                <img class="ml-4" src="/static/img/logo-ministerio.png" alt="Ministério da Agricultura, Pecuária e abastecimento" width="20%" />
+             </a>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <span class="br-divider my-3"></span>
+    <div class="container-lg">
+      <div class="info">
+        <div class="pb-3">Todos os direitos reservados © <span class="ano"></span> - INCRA |
+            <a href="#" data-toggle="modal" data-target="#contatoModal">
+              Contatos
+            </a>
+            |
+            <a href="/sobre/apresentacao/">
+              Sobre
+          </a>
+        </div>
+      </div>
+    </div>
+</footer>
+
+    </div>
+    
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="/static/js/pagination.js"></script>
+    <script src="/static/js/modal_script.js"></script>
+    <script src="/static/js/configHeadGoogleAnalytics.js"></script>
+    <script src="/static/js/configHeadGoogleTagManager.js"></script>
+
+    
+
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDWUORiPKOkWshWlAt-23DyCfbX56SLgxk"></script>
+    <script src="/static/js/openlayers/OpenLayers.js" type="text/javascript"></script>
+    <script src="/static/js/openlayers/pt-BR.js" type="text/javascript"></script>
+    <script type="text/javascript" src="/static/js/jquery.hotkeys.js"></script>
+    <script type="text/javascript" src="/static/carto/js/MapSizePanel.js"></script>
+    <style>
+        .nbr{
+            color: #1351b4;
+        }
+        .nbr:hover{
+            color: #1351b4;
+            text-decoration: underline;
+        }
+        .erro{
+            font-weight: bold;
+            color: red;
+        }
+        .erro:hover{
+            color: red;
+        }
+    </style>
+    <script type="text/javascript">
+        var mapa;
+        $('#erro').hide();
+        $('#erro-nao-suportado').hide();
+
+        OpenLayers.Lang.setCode('pt-BR');
+
+        function init_mapa() {
+            mapa = new OpenLayers.Map({
+                div: "mapa",
+                projection: "EPSG:900913",
+                displayProjection: "EPSG:4326",
+                layers: [
+                    new OpenLayers.Layer.Google("Google Híbrido", {type: google.maps.MapTypeId.HYBRID, numZoomLevels: 20}),
+                    new OpenLayers.Layer.Google("Google Mapa"),
+                    new OpenLayers.Layer.OSM('OpenStreetMap')
+                ],
+                restrictedExtent: new OpenLayers.Bounds(-8293302.064098875038326, -4028801.359046409837902,
+                        -3562223.705384750850499, 669141.0569511004),
+                zoom: 1
+            });
+            mapa.addControl(new OpenLayers.Control.LayerSwitcher({'ascending': false}));
+            mapa.addControl(new MapSizePanel());
+
+            var camadaParcela = new OpenLayers.Layer.Vector("Parcela", {
+                projection: mapa.displayProjection,
+                strategies: [new OpenLayers.Strategy.Fixed],
+                protocol: new OpenLayers.Protocol.HTTP({
+                    url: "/geo/parcela/kml/f7fd7a57-4858-4453-b132-74e74dee2101/",
+                    format: new OpenLayers.Format.KML({
+                        extractStyles: true,
+                        extractAttributes: true
+                    })
+                })
+            });
+            mapa.addLayer(camadaParcela);
+
+            camadaParcela.events.register('loadend', camadaParcela, function () {
+                this.map.zoomToExtent(this.getDataExtent());
+            });
+
+            if (!mapa.getCenter()) {
+                mapa.zoomToMaxExtent();
+            }
+        }
+
+        $(document).ready(function () {
+            init_mapa();
+            links = document.getElementsByClassName('links');
+            
+                link = links[0]
+                link.setAttribute('href', "/geo/parcela/detalhe/f7fd7a57-4858-4453-b132-74e74dee2101/")
+            
+        });
+
+        function getEscala(qrcode){
+          jQuery.ajax({
+          url: '//' +  location.host + '/geo/parcela/plantaA4/f7fd7a57-4858-4453-b132-74e74dee2101/',
+          data:null,
+          }).done(function ( data ) {
+            document.getElementById('escalaA0').innerHTML = data.escalaA0;
+            document.getElementById('escalaA1').innerHTML = data.escalaA1;
+            document.getElementById('escalaA2').innerHTML = data.escalaA2;
+            document.getElementById('escalaA3').innerHTML = data.escalaA3;
+            document.getElementById('escalaA4').innerHTML = data.escalaA4;
+          });
+        };
+        getEscala();
+
+
+    </script>
+
+
+    
+    
+
+
+
+
+</body>
+
+
+</html>
+
+

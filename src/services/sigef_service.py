@@ -250,3 +250,30 @@ class SigefService:
             )
         
         return await self._execute_with_reauth(_download)
+    
+    async def open_parcela_browser(self, codigo: str) -> None:
+        """
+        Abre a página da parcela no navegador autenticado.
+        
+        Args:
+            codigo: Código SIGEF da parcela.
+        """
+        async def _open(session):
+            return await self.sigef.open_parcela_browser(codigo, session)
+        
+        return await self._execute_with_reauth(_open)
+    
+    async def get_parcela_detalhes(self, codigo: str) -> dict:
+        """
+        Obtém todos os detalhes da parcela.
+        
+        Args:
+            codigo: Código SIGEF da parcela.
+            
+        Returns:
+            Dicionário com todos os detalhes extraídos da página.
+        """
+        async def _get(session):
+            return await self.sigef.get_parcela_detalhes(codigo, session)
+        
+        return await self._execute_with_reauth(_get)

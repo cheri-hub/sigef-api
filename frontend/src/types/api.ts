@@ -77,3 +77,63 @@ export interface ApiError {
   detail: string;
   status_code?: number;
 }
+
+// Consulta WFS Types
+export type LayerType = 
+  | 'sigef_particular'
+  | 'sigef_publico'
+  | 'snci_privado'
+  | 'snci_publico'
+  | 'assentamentos'
+  | 'quilombolas'
+  | 'pendentes_titulacao';
+
+export type ServerType = 'incra' | 'geoone' | 'auto';
+
+export interface BoundingBox {
+  x_min: number;
+  y_min: number;
+  x_max: number;
+  y_max: number;
+}
+
+export interface ConsultaRequest {
+  bbox: BoundingBox;
+  camada: LayerType;
+  servidor: ServerType;
+  limite?: number;
+}
+
+export interface DownloadLinks {
+  vertices_csv: string;
+  limites_shp: string;
+  parcela_shp: string;
+  detalhes: string;
+}
+
+export interface ImovelResponse {
+  id: string;
+  parcela_codigo: string;
+  denominacao?: string | null;
+  municipio?: string | null;
+  uf?: string | null;
+  area_ha?: number | null;
+  situacao?: string | null;
+  data_certificacao?: string | null;
+  geometry: any; // GeoJSON Geometry
+  download_links?: DownloadLinks | null;
+  propriedades: Record<string, any>;
+}
+
+export interface ConsultaResponse {
+  sucesso: boolean;
+  mensagem: string;
+  total: number;
+  servidor_utilizado: string;
+  camada: string;
+  bbox_consultado: BoundingBox;
+  tempo_resposta_ms: number;
+  imoveis: ImovelResponse[];
+  type: 'FeatureCollection';
+  features: any[];
+}

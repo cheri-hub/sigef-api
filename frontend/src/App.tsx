@@ -1,6 +1,6 @@
 import { Routes, Route } from 'react-router-dom';
 import { Layout } from './components';
-import { DashboardPage, AuthPage, DownloadPage, BatchPage } from './pages';
+import { DashboardPage, AuthPage, DownloadPage, BatchPage, ConsultaPage } from './pages';
 
 function App() {
   return (
@@ -10,6 +10,7 @@ function App() {
         <Route path="/auth" element={<AuthPage />} />
         <Route path="/download" element={<DownloadPage />} />
         <Route path="/batch" element={<BatchPage />} />
+        <Route path="/consulta" element={<ConsultaPage />} />
       </Routes>
     </Layout>
   );

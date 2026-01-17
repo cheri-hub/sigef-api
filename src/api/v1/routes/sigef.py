@@ -13,6 +13,7 @@ from src.api.v1.schemas import (
     DownloadAllResponse,
     DownloadRequest,
     DownloadResponse,
+    ParcelaDetalhesResponse,
     ParcelaInfoResponse,
     TipoExportacaoEnum,
 )
@@ -52,7 +53,7 @@ async def get_parcela(
             perimetro_m=parcela.perimetro_m,
             municipio=parcela.municipio,
             uf=parcela.uf,
-            situacao=parcela.situacao.value,
+            situacao=parcela.situacao.value if parcela.situacao else None,
             url=parcela.get_url_sigef(),
         )
         
@@ -249,6 +250,59 @@ async def download_memorial(
         
     except ParcelaNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
+        
+    except SessionExpiredError as e:
+        raise HTTPException(status_code=401, detail=str(e))
+        
+    except SigefError as e:
+        raise HTTPException(status_code=502, detail=str(e))
+
+
+@router.post(
+    "/open-browser/{codigo}",
+    summary="Abre página da parcela no navegador autenticado",
+    description="Abre a página de detalhes da parcela usando o navegador Playwright já autenticado.",
+)
+async def open_browser(
+    codigo: str,
+    sigef_service: SigefService = Depends(get_sigef_service),
+) -> dict:
+    """Abre página da parcela no navegador autenticado."""
+    try:
+        await sigef_service.open_parcela_browser(codigo)
+        
+        return {
+            "success": True,
+            "message": f"Página da parcela {codigo} aberta no navegador autenticado",
+        }
+        
+    except InvalidParcelaCodeError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+        
+    except SessionExpiredError as e:
+        raise HTTPException(status_code=401, detail=str(e))
+        
+    except SigefError as e:
+        raise HTTPException(status_code=502, detail=str(e))
+
+
+@router.get(
+    "/detalhes/{codigo}",
+    response_model=ParcelaDetalhesResponse,
+    summary="Obtém detalhes completos de uma parcela",
+    description="Extrai todas as informações da página HTML da parcela.",
+)
+async def get_detalhes(
+    codigo: str,
+    sigef_service: SigefService = Depends(get_sigef_service),
+) -> ParcelaDetalhesResponse:
+    """Obtém detalhes completos da parcela."""
+    try:
+        detalhes = await sigef_service.get_parcela_detalhes(codigo)
+        return ParcelaDetalhesResponse(**detalhes)
+        
+    except InvalidParcelaCodeError as e:
+        raise HTTPException(status_code=400, detail=str(e))
         
     except SessionExpiredError as e:
         raise HTTPException(status_code=401, detail=str(e))

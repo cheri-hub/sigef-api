@@ -26,8 +26,16 @@ class APIKeyMiddleware(BaseHTTPMiddleware):
     - /api/v1/auth/status
     """
     
-    PUBLIC_PATHS = {"/health", "/docs", "/redoc", "/openapi.json", "/"}
-    PUBLIC_PREFIXES = ("/docs", "/redoc", "/openapi", "/api/v1/consultar", "/api/v1/auth/status")
+    PUBLIC_PATHS = {
+        "/health", "/docs", "/redoc", "/openapi.json", "/",
+        "/api/health", "/api/docs", "/api/redoc", "/api/openapi.json", "/api",
+    }
+    PUBLIC_PREFIXES = (
+        "/docs", "/redoc", "/openapi",
+        "/api/docs", "/api/redoc", "/api/openapi",
+        "/api/v1/consultar", "/api/v1/auth/status",
+        "/v1/consultar", "/v1/auth/status",
+    )
     
     async def dispatch(self, request: Request, call_next):
         """Processa requisição e valida API Key."""

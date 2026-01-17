@@ -25,13 +25,19 @@ class APIKeyMiddleware(BaseHTTPMiddleware):
     """
     
     PUBLIC_PATHS = {"/health", "/docs", "/redoc", "/openapi.json", "/"}
+    PUBLIC_PREFIXES = ("/docs", "/redoc", "/openapi")
     
     async def dispatch(self, request: Request, call_next):
         """Processa requisição e valida API Key."""
         settings = get_settings()
+        path = request.url.path
         
-        # Permite rotas públicas
-        if request.url.path in self.PUBLIC_PATHS:
+        # Permite rotas públicas (match exato)
+        if path in self.PUBLIC_PATHS:
+            return await call_next(request)
+        
+        # Permite rotas públicas (match por prefixo)
+        if path.startswith(self.PUBLIC_PREFIXES):
             return await call_next(request)
         
         # Em desenvolvimento, permite sem API Key

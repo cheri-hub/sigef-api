@@ -118,10 +118,10 @@ def create_app() -> FastAPI:
         )
         # Add security scheme
         openapi_schema["components"]["securitySchemes"] = {
-            "BearerAuth": {
-                "type": "http",
-                "scheme": "bearer",
-                "bearerFormat": "API Key",
+            "ApiKeyAuth": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "X-API-Key",
                 "description": "Insira sua API Key"
             }
         }
@@ -132,7 +132,7 @@ def create_app() -> FastAPI:
                 if "/consultar" in path or "/auth/status" in path or path in ["/health", "/"]:
                     continue
                 if method != "parameters":
-                    openapi_schema["paths"][path][method]["security"] = [{"BearerAuth": []}]
+                    openapi_schema["paths"][path][method]["security"] = [{"ApiKeyAuth": []}]
         app.openapi_schema = openapi_schema
         return app.openapi_schema
     

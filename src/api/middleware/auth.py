@@ -51,35 +51,22 @@ class APIKeyMiddleware(BaseHTTPMiddleware):
         if settings.is_development:
             return await call_next(request)
         
-        # Valida API Key no header Authorization
-        auth_header = request.headers.get("Authorization")
+        # Valida API Key no header X-API-Key
+        api_key = request.headers.get("X-API-Key")
         
-        if not auth_header:
+        if not api_key:
             logger.warning(
-                "Requisição sem Authorization header",
+                "Requisição sem X-API-Key header",
                 path=request.url.path,
                 client=request.client.host if request.client else "unknown"
             )
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Authorization header missing",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
-        
-        # Formato esperado: "Bearer <api_key>"
-        try:
-            scheme, credentials = auth_header.split()
-            if scheme.lower() != "bearer":
-                raise ValueError("Invalid scheme")
-        except ValueError:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid Authorization header format",
-                headers={"WWW-Authenticate": "Bearer"},
+                detail="X-API-Key header missing",
             )
         
         # Valida API Key
-        if credentials != settings.api_key:
+        if api_key != settings.api_key:
             logger.warning(
                 "API Key inválida",
                 path=request.url.path,

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { AlertCircle, Download, Loader2, Map, Search, FileText, Server } from 'lucide-react';
+import { AlertCircle, Download, Loader2, Map, Search } from 'lucide-react';
 import { consultaService, sigefService } from '../services';
 import ParcelaDetalhesModal from '../components/ParcelaDetalhesModal';
 import type {
@@ -9,22 +9,6 @@ import type {
   LayerType,
   ServerType,
 } from '../types';
-
-const LAYER_OPTIONS: { value: LayerType; label: string }[] = [
-  { value: 'sigef_particular', label: 'SIGEF Particular' },
-  { value: 'sigef_publico', label: 'SIGEF Público' },
-  { value: 'snci_privado', label: 'SNCI Privado' },
-  { value: 'snci_publico', label: 'SNCI Público' },
-  { value: 'assentamentos', label: 'Assentamentos' },
-  { value: 'quilombolas', label: 'Quilombolas' },
-  { value: 'pendentes_titulacao', label: 'Pendentes de Titulação' },
-];
-
-const SERVER_OPTIONS: { value: ServerType; label: string }[] = [
-  { value: 'auto', label: 'Automático (INCRA → GeoOne)' },
-  { value: 'incra', label: 'INCRA (por UF)' },
-  { value: 'geoone', label: 'GeoOne (nacional)' },
-];
 
 export default function ConsultaPage() {
   // Estados do formulário

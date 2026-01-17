@@ -1,0 +1,56 @@
+# Gov.br Auth - Docker Compose Produção
+# Deploy no servidor cherihub.cloud
+
+services:
+  api:
+    image: gov-auth-api:latest
+    container_name: gov-auth-api
+    ports:
+      - "8001:8000"
+    environment:
+      - ENVIRONMENT=production
+      - DEBUG=false
+      - LOG_LEVEL=INFO
+      - LOG_FORMAT=json
+      - HOST=0.0.0.0
+      - PORT=8000
+      - CORS_ORIGINS=https://govauth.cherihub.cloud,https://cherihub.cloud
+    env_file:
+      - .env
+    volumes:
+      - /opt/gov-auth/data/sessions:/app/data/sessions
+      - /opt/gov-auth/data/downloads:/app/data/downloads
+      - /opt/gov-auth/data/logs:/app/data/logs
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  frontend:
+    image: gov-auth-frontend:latest
+    container_name: gov-auth-frontend
+    ports:
+      - "3002:80"
+    environment:
+      - VITE_API_URL=https://govauth.cherihub.cloud/api
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    depends_on:
+      - api

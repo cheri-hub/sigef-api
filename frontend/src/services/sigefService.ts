@@ -1,6 +1,7 @@
 import api from './api';
 import type {
   ParcelaInfo,
+  ParcelaDetalhesResponse,
   DownloadRequest,
   DownloadResponse,
   DownloadAllResponse,
@@ -98,8 +99,8 @@ export const sigefService = {
     await api.post(`/sigef/open-browser/${codigo}`);
   },
 
-  async getDetalhes(codigo: string): Promise<any> {
-    const response = await api.get(`/sigef/detalhes/${codigo}`);
+  async getDetalhes(codigo: string): Promise<ParcelaDetalhesResponse> {
+    const response = await api.get<ParcelaDetalhesResponse>(`/sigef/detalhes/${codigo}`);
     return response.data;
   },
 };

@@ -1,27 +1,8 @@
 import { X } from 'lucide-react';
-
-interface ParcelaDetalhes {
-  codigo: string;
-  url: string;
-  informacoes_parcela: Record<string, string | null>;
-  historico: {
-    quantidade: number;
-    requerimentos: Array<{
-      requerimento: string;
-      status: string;
-      data: string;
-    }>;
-  };
-  area_georreferenciada: Record<string, any>;
-  detentores: Array<{
-    nome: string;
-    cpf_cnpj: string;
-  }>;
-  registro: Record<string, string | null>;
-}
+import type { ParcelaDetalhesResponse } from '../types';
 
 interface ParcelaDetalhesModalProps {
-  detalhes: ParcelaDetalhes | null;
+  detalhes: ParcelaDetalhesResponse | null;
   isOpen: boolean;
   onClose: () => void;
 }

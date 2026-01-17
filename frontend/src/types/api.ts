@@ -38,6 +38,17 @@ export interface ParcelaInfo {
   municipio?: string | null;
   uf?: string | null;
   situacao?: string | null;
+  url?: string;
+}
+
+export interface ParcelaDetalhesResponse {
+  codigo: string;
+  url: string;
+  informacoes_parcela: Record<string, any>;
+  historico: Record<string, any>;
+  area_georreferenciada: Record<string, any>;
+  detentores: Record<string, any>[];
+  registro: Record<string, any>;
 }
 
 export interface DownloadRequest {

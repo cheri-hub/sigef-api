@@ -89,8 +89,8 @@ def create_app() -> FastAPI:
         3. Baixe dados via `/v1/sigef/download`
         """,
         version="1.0.0",
-        docs_url="/docs" if settings.debug else None,
-        redoc_url="/redoc" if settings.debug else None,
+        docs_url="/docs",
+        redoc_url="/redoc",
         lifespan=lifespan,
     )
     

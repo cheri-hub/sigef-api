@@ -5,7 +5,6 @@ Este módulo implementa a comunicação com servidores WFS do INCRA e GeoOne
 para consulta de features geográficas (imóveis certificados).
 """
 
-from asyncio.windows_events import NULL
 import logging
 from typing import Any
 

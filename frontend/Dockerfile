@@ -1,5 +1,5 @@
 # Build stage
-FROM node:18-alpine as builder
+FROM node:18-alpine AS builder
 
 WORKDIR /app
 
@@ -11,6 +11,9 @@ RUN npm ci
 
 # Copia código fonte
 COPY . .
+
+# Define variável de ambiente para produção
+ENV VITE_API_URL=/api
 
 # Build da aplicação
 RUN npm run build

@@ -13,7 +13,7 @@ export function AuthPage() {
           <ul className="text-yellow-700 text-sm mt-2 space-y-1">
             <li>• Certificado digital A1 instalado no Windows</li>
             <li>• Google Chrome instalado</li>
-            <li>• Backend rodando em localhost:8000</li>
+            <li>• Conexão com a API</li>
           </ul>
         </div>
 

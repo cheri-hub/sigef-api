@@ -3,6 +3,9 @@ import { Activity, Server, Clock, CheckCircle, XCircle } from 'lucide-react';
 import { authService } from '../services';
 import type { SessionStatus } from '../types';
 
+// URL da API - usa variável de ambiente ou caminho relativo
+const API_BASE_URL = import.meta.env.VITE_API_URL || '';
+
 export function DashboardPage() {
   const [status, setStatus] = useState<SessionStatus | null>(null);
   const [apiHealth, setApiHealth] = useState<'loading' | 'online' | 'offline'>('loading');
@@ -173,7 +176,7 @@ export function DashboardPage() {
         </p>
         <div className="mt-3 flex gap-4 text-sm">
           <a 
-            href="http://localhost:8000/docs" 
+            href={`${API_BASE_URL}/docs`}
             target="_blank" 
             rel="noopener noreferrer"
             className="text-govbr-primary hover:underline"
@@ -181,7 +184,7 @@ export function DashboardPage() {
             📖 Swagger API
           </a>
           <a 
-            href="http://localhost:8000/redoc" 
+            href={`${API_BASE_URL}/redoc`}
             target="_blank" 
             rel="noopener noreferrer"
             className="text-govbr-primary hover:underline"

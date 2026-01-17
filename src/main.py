@@ -114,6 +114,7 @@ def create_app() -> FastAPI:
             version=app.version,
             description=app.description,
             routes=app.routes,
+            servers=[{"url": app.root_path}] if app.root_path else None,
         )
         # Add security scheme
         openapi_schema["components"]["securitySchemes"] = {

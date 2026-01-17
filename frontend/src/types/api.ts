@@ -41,11 +41,22 @@ export interface ParcelaInfo {
   url?: string;
 }
 
+export interface HistoricoRequerimento {
+  requerimento: string;
+  status: string;
+  data: string;
+}
+
+export interface ParcelaHistorico {
+  quantidade: number;
+  requerimentos: HistoricoRequerimento[];
+}
+
 export interface ParcelaDetalhesResponse {
   codigo: string;
   url: string;
   informacoes_parcela: Record<string, any>;
-  historico: Record<string, any>;
+  historico: ParcelaHistorico;
   area_georreferenciada: Record<string, any>;
   detentores: Record<string, any>[];
   registro: Record<string, any>;

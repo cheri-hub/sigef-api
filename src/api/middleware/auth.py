@@ -28,12 +28,9 @@ class APIKeyMiddleware(BaseHTTPMiddleware):
     
     PUBLIC_PATHS = {
         "/health", "/docs", "/redoc", "/openapi.json", "/",
-        "/api/health", "/api/docs", "/api/redoc", "/api/openapi.json", "/api",
     }
     PUBLIC_PREFIXES = (
         "/docs", "/redoc", "/openapi",
-        "/api/docs", "/api/redoc", "/api/openapi",
-        "/api/v1/consultar", "/api/v1/auth/status",
         "/v1/consultar", "/v1/auth/status",
     )
     

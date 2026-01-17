@@ -69,6 +69,23 @@ class LoginResponse(BaseModel):
     session: SessionInfoResponse | None = None
 
 
+class BrowserLoginResponse(BaseModel):
+    """Resposta de login via navegador do cliente."""
+    
+    auth_token: str
+    session_id: str
+    login_url: str  # URL que o cliente deve abrir no navegador
+
+
+class BrowserCallbackRequest(BaseModel):
+    """Request para retornar dados da autenticação via navegador."""
+    
+    auth_token: str
+    govbr_cookies: list[dict]  # Cookies capturados no navegador
+    sigef_cookies: list[dict] | None = None
+    jwt_payload: dict | None = None
+
+
 # ============== SIGEF Schemas ==============
 
 class ParcelaInfoResponse(BaseModel):

@@ -28,10 +28,12 @@ class APIKeyMiddleware(BaseHTTPMiddleware):
     
     PUBLIC_PATHS = {
         "/health", "/docs", "/redoc", "/openapi.json", "/",
+        "/auth-browser",  # Página de autenticação do cliente
     }
     PUBLIC_PREFIXES = (
         "/docs", "/redoc", "/openapi",
         "/v1/consultar", "/v1/auth/status",
+        "/v1/auth/browser-login", "/v1/auth/browser-callback",  # Browser auth endpoints
     )
     
     async def dispatch(self, request: Request, call_next):

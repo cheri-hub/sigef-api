@@ -7,6 +7,7 @@ gerenciando sessões e validações.
 
 from src.core.exceptions import SessionExpiredError
 from src.core.logging import get_logger
+from src.core.security import mask_cpf
 from src.domain.entities import Session
 from src.domain.interfaces import IGovBrAuthenticator, ISessionRepository, ISigefClient
 
@@ -90,7 +91,7 @@ class AuthService:
         
         # 1. Gov.br
         session = await self.govbr.authenticate(headless=False)
-        logger.info("Gov.br autenticado", cpf=session.cpf)
+        logger.info("Gov.br autenticado", cpf_masked=mask_cpf(session.cpf))
         
         # 2. SIGEF
         session = await self.sigef.authenticate(session)
@@ -143,6 +144,103 @@ class AuthService:
                 await self.sessions.delete(session.session_id)
         
         logger.info("Sessão encerrada", session_id=session_id)
+    
+    async def create_session_from_browser_auth(
+        self,
+        session_id: str,
+        govbr_cookies: list[dict],
+        sigef_cookies: list[dict] | None = None,
+        jwt_payload: dict | None = None,
+    ):
+        """
+        Cria uma sessão a partir de dados retornados pela autenticação no browser.
+        
+        Usado quando o cliente faz login no navegador e retorna os cookies para a API.
+        NÃO altera a autenticação Gov.br/SIGEF existente.
+        
+        Args:
+            session_id: ID da sessão
+            govbr_cookies: Cookies do Gov.br capturados no navegador
+            sigef_cookies: Cookies do SIGEF (opcional)
+            jwt_payload: Dados JWT do Gov.br (opcional)
+        
+        Returns:
+            Session criada com os dados fornecidos
+        """
+        from src.domain.entities import Cookie, Session, JWTPayload
+        
+        logger.info(f"Criando sessão via browser auth: {session_id}")
+        
+        # Converte cookies dict para objetos Cookie
+        govbr_cookie_objs = []
+        for cookie_data in govbr_cookies:
+            govbr_cookie_objs.append(
+                Cookie(
+                    name=cookie_data.get("name", ""),
+                    value=cookie_data.get("value", ""),
+                    domain=cookie_data.get("domain", ""),
+                    path=cookie_data.get("path", "/"),
+                    expires=cookie_data.get("expires"),
+                    http_only=cookie_data.get("httpOnly", False),
+                    secure=cookie_data.get("secure", False),
+                    same_site=cookie_data.get("sameSite", "Lax"),
+                )
+            )
+        
+        sigef_cookie_objs = []
+        if sigef_cookies:
+            for cookie_data in sigef_cookies:
+                sigef_cookie_objs.append(
+                    Cookie(
+                        name=cookie_data.get("name", ""),
+                        value=cookie_data.get("value", ""),
+                        domain=cookie_data.get("domain", ""),
+                        path=cookie_data.get("path", "/"),
+                        expires=cookie_data.get("expires"),
+                        http_only=cookie_data.get("httpOnly", False),
+                        secure=cookie_data.get("secure", False),
+                        same_site=cookie_data.get("sameSite", "Lax"),
+                    )
+                )
+        
+        # Cria JWT payload se fornecido
+        jwt_obj = None
+        if jwt_payload:
+            jwt_obj = JWTPayload(
+                cpf=jwt_payload.get("cpf"),
+                nome=jwt_payload.get("nome"),
+                email=jwt_payload.get("email"),
+                access_token=jwt_payload.get("access_token"),
+                id_token=jwt_payload.get("id_token"),
+                cnpjs=jwt_payload.get("cnpjs", []),
+                nivel_acesso=jwt_payload.get("nivel_acesso", "bronze"),
+                raw=jwt_payload.get("raw", {}),
+            )
+        
+        # Cria session
+        session = Session(
+            session_id=session_id,
+            cpf=jwt_payload.get("cpf") if jwt_payload else None,
+            nome=jwt_payload.get("nome") if jwt_payload else None,
+            jwt_payload=jwt_obj,
+            govbr_cookies=govbr_cookie_objs,
+            sigef_cookies=sigef_cookie_objs,
+        )
+        
+        # Marca como autenticado
+        session.is_govbr_authenticated = len(govbr_cookie_objs) > 0
+        session.is_sigef_authenticated = len(sigef_cookie_objs) > 0
+        
+        # Persiste
+        await self.sessions.save(session)
+        
+        logger.info(
+            f"Sessão criada via browser auth",
+            session_id=session_id,
+            cpf_masked=mask_cpf(session.cpf) if session.cpf else "N/A",
+        )
+        
+        return session
     
     async def get_session_info(self) -> dict | None:
         """

@@ -166,6 +166,15 @@ def create_app() -> FastAPI:
     # Rotas
     app.include_router(v1_router)
     
+    # Rota de página HTML de autenticação (browser-login)
+    from src.api.v1.static.auth_page import HTML_AUTH_PAGE
+    
+    @app.get("/auth-browser", tags=["Autenticação"])
+    async def auth_browser_page():
+        """Página HTML de autenticação do navegador do cliente."""
+        from fastapi.responses import HTMLResponse
+        return HTMLResponse(content=HTML_AUTH_PAGE)
+    
     # Health check
     @app.get("/health", tags=["Health"])
     async def health_check():

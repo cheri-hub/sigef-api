@@ -153,41 +153,46 @@ export function BatchDownload() {
               <p className="text-sm text-blue-600">Total</p>
             </div>
             <div className="bg-green-50 rounded-lg p-4 text-center">
-              <p className="text-3xl font-bold text-govbr-success">{result.completed}</p>
+              <p className="text-3xl font-bold text-govbr-success">{result.sucesso}</p>
               <p className="text-sm text-govbr-success">Sucesso</p>
             </div>
             <div className="bg-red-50 rounded-lg p-4 text-center">
-              <p className="text-3xl font-bold text-govbr-error">{result.failed}</p>
+              <p className="text-3xl font-bold text-govbr-error">{result.falhas}</p>
               <p className="text-sm text-govbr-error">Falhas</p>
             </div>
           </div>
 
           <div className="space-y-2">
-            {result.results.map((r) => (
-              <div
-                key={r.codigo}
-                className={`flex items-center gap-3 p-3 rounded-lg ${
-                  r.success ? 'bg-green-50' : 'bg-red-50'
-                }`}
-              >
-                {r.success ? (
-                  <CheckCircle className="w-5 h-5 text-govbr-success" />
-                ) : (
-                  <XCircle className="w-5 h-5 text-govbr-error" />
-                )}
-                <span className="font-mono text-sm flex-1">{r.codigo}</span>
-                {r.success && r.files && (
-                  <span className="text-sm text-gray-500">
-                    {r.files.length} arquivo(s)
-                  </span>
-                )}
-                {!r.success && r.errors && r.errors.length > 0 && (
-                  <span className="text-sm text-red-600">
-                    {r.errors[0]}
-                  </span>
-                )}
-              </div>
-            ))}
+            {Object.entries(result.resultados).map(([codigo, arquivos]) => {
+              const hasError = 'error' in arquivos;
+              const fileCount = Object.keys(arquivos).filter(k => k !== 'error').length;
+              
+              return (
+                <div
+                  key={codigo}
+                  className={`flex items-center gap-3 p-3 rounded-lg ${
+                    hasError ? 'bg-red-50' : 'bg-green-50'
+                  }`}
+                >
+                  {hasError ? (
+                    <XCircle className="w-5 h-5 text-govbr-error" />
+                  ) : (
+                    <CheckCircle className="w-5 h-5 text-govbr-success" />
+                  )}
+                  <span className="font-mono text-sm flex-1">{codigo}</span>
+                  {!hasError && (
+                    <span className="text-sm text-gray-500">
+                      {fileCount} arquivo(s)
+                    </span>
+                  )}
+                  {hasError && (
+                    <span className="text-sm text-red-600">
+                      {arquivos.error}
+                    </span>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
       )}

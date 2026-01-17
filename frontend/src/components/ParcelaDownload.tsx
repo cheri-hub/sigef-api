@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { Search, Download, Loader2, FileSpreadsheet, FileText, AlertCircle } from 'lucide-react';
 import { sigefService } from '../services';
-import type { ParcelaInfo, DownloadResponse } from '../types';
+import type { ParcelaInfo, DownloadAllResponse } from '../types';
 
 export function ParcelaDownload() {
   const [codigo, setCodigo] = useState('');
   const [parcela, setParcela] = useState<ParcelaInfo | null>(null);
-  const [downloadResult, setDownloadResult] = useState<DownloadResponse | null>(null);
+  const [downloadResult, setDownloadResult] = useState<DownloadAllResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [downloading, setDownloading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -212,31 +212,19 @@ export function ParcelaDownload() {
             }`}>
               {downloadResult.success ? '✅ Download concluído!' : '⚠️ Download parcial'}
             </p>
+            <p className="text-sm text-gray-600 mt-1">{downloadResult.message}</p>
           </div>
 
-          {downloadResult.files && downloadResult.files.length > 0 && (
+          {downloadResult.arquivos && Object.keys(downloadResult.arquivos).length > 0 && (
             <div className="mt-4">
               <h4 className="font-medium mb-2">Arquivos baixados:</h4>
               <ul className="space-y-2">
-                {downloadResult.files.map((file, idx) => (
-                  <li key={idx} className="flex items-center gap-2 text-sm">
+                {Object.entries(downloadResult.arquivos).map(([tipo, caminho]) => (
+                  <li key={tipo} className="flex items-center gap-2 text-sm">
                     <FileSpreadsheet className="w-4 h-4 text-govbr-primary" />
-                    <span className="font-mono">{file.filename}</span>
-                    <span className="text-gray-500">
-                      ({((file.size || 0) / 1024).toFixed(1)} KB)
-                    </span>
+                    <span className="font-medium capitalize">{tipo}:</span>
+                    <span className="font-mono text-gray-600">{caminho}</span>
                   </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {downloadResult.errors && downloadResult.errors.length > 0 && (
-            <div className="mt-4">
-              <h4 className="font-medium mb-2 text-red-600">Erros:</h4>
-              <ul className="space-y-1">
-                {downloadResult.errors.map((err, idx) => (
-                  <li key={idx} className="text-sm text-red-600">{err}</li>
                 ))}
               </ul>
             </div>

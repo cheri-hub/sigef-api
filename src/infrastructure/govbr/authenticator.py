@@ -85,7 +85,6 @@ class PlaywrightGovBrAuthenticator(IGovBrAuthenticator):
         """Execução síncrona da autenticação (roda em thread separada)."""
         with sync_playwright() as p:
             browser = p.chromium.launch(
-                channel="chrome",  # Usa Chrome do sistema
                 headless=False,
                 args=[
                     "--disable-blink-features=AutomationControlled",

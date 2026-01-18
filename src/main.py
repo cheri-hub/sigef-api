@@ -143,8 +143,9 @@ File.WriteAllBytes("parcela.csv", bytes);
 - [Docker Deploy](https://github.com/seu-repo/gov-auth/blob/main/DOCKER_DEPLOY.md)
         """,
         version="1.0.0",
-        docs_url=None,  # Usamos rota customizada com melhor contraste
-        redoc_url="/redoc" if settings.debug else None,
+        docs_url="/docs",
+        redoc_url="/redoc",
+        root_path="/api" if settings.is_production else "",
         lifespan=lifespan,
         swagger_ui_parameters={
             "syntaxHighlight.theme": "monokai",
@@ -205,33 +206,11 @@ File.WriteAllBytes("parcela.csv", bytes);
     # Rotas
     app.include_router(v1_router, prefix="/api")
     
-    # Swagger UI customizado com alto contraste
-    if settings.debug:
-        from fastapi.openapi.docs import get_swagger_ui_html
-        
-        @app.get("/docs", include_in_schema=False)
-        async def custom_swagger_ui():
-            """Swagger UI com CSS de alto contraste."""
-            return get_swagger_ui_html(
-                openapi_url="/openapi.json",
-                title="Gov.br Auth API - Docs",
-                swagger_css_url="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css",
-                swagger_js_url="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-bundle.js",
-                swagger_ui_parameters={
-                    "syntaxHighlight.theme": "monokai",
-                    "tryItOutEnabled": True,
-                    "displayRequestDuration": True,
-                    "docExpansion": "list",
-                    "filter": True,
-                    "showExtensions": True,
-                },
-            )
-        
-        # Injetar CSS customizado via middleware para /docs
-        from starlette.middleware.base import BaseHTTPMiddleware
-        from starlette.responses import Response
-        
-        class SwaggerContrastMiddleware(BaseHTTPMiddleware):
+    # Middleware para CSS dark mode no Swagger UI
+    from starlette.middleware.base import BaseHTTPMiddleware
+    from starlette.responses import Response
+    
+    class SwaggerContrastMiddleware(BaseHTTPMiddleware):
             """Injeta CSS dark mode no Swagger UI."""
             
             CUSTOM_CSS = """
@@ -694,8 +673,8 @@ html, body {
                     )
                 
                 return response
-        
-        app.add_middleware(SwaggerContrastMiddleware)
+    
+    app.add_middleware(SwaggerContrastMiddleware)
     
     # Rota de página HTML de autenticação
     from src.api.v1.static.auth_page import HTML_AUTH_PAGE

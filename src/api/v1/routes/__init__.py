@@ -8,7 +8,7 @@ from src.api.v1.routes.auth import router as auth_router
 from src.api.v1.routes.consulta import router as consulta_router
 from src.api.v1.routes.sigef import router as sigef_router
 
-router = APIRouter(prefix="/api/v1")
+router = APIRouter(prefix="/v1")  # Nginx remove /api, então recebemos /v1/...
 
 # Inclui rotas
 router.include_router(auth_router)

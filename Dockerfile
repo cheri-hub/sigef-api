@@ -49,11 +49,6 @@ COPY requirements.txt .
 # Instala dependências Python
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Instala browsers do Playwright
-# NOTA: Para uso com certificado digital, será necessário
-# montar o Chrome do host ou usar certificado em arquivo
-RUN playwright install chromium --with-deps
-
 # Copia código fonte
 COPY src/ ./src/
 COPY pyproject.toml .
@@ -65,6 +60,10 @@ RUN mkdir -p /app/data/sessions /app/data/downloads /app/data/logs
 RUN useradd --create-home --shell /bin/bash appuser \
     && chown -R appuser:appuser /app
 USER appuser
+
+# Instala browsers do Playwright como appuser
+ENV PLAYWRIGHT_BROWSERS_PATH=/home/appuser/.cache/ms-playwright
+RUN playwright install chromium
 
 # Porta
 EXPOSE ${PORT}

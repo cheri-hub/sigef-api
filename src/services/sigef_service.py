@@ -47,13 +47,11 @@ class SigefService:
         session = await self.sessions.load_latest()
         
         if not session or not session.is_valid():
-            if self.auth:
-                # Tenta criar nova sessão
-                logger.info("Sessão inválida, criando nova")
-                return await self.auth.get_or_create_session(force_new=True)
-            
+            # Em produção (Docker), não tenta criar sessão automaticamente
+            # O cliente deve usar /auth/browser-login primeiro
             raise SessionExpiredError(
-                "Sessão expirada e auto-refresh não está habilitado."
+                "Nenhuma sessão válida encontrada. "
+                "Use POST /v1/auth/browser-login para autenticar primeiro."
             )
         
         # Garante autenticação no SIGEF (ou re-autentica se solicitado)

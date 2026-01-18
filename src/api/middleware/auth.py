@@ -40,35 +40,37 @@ class APIKeyMiddleware(BaseHTTPMiddleware):
         if settings.is_development:
             return await call_next(request)
         
-        # Valida API Key no header Authorization
+        # Valida API Key - aceita X-API-Key ou Authorization: Bearer
+        api_key = request.headers.get("X-API-Key")
         auth_header = request.headers.get("Authorization")
         
-        if not auth_header:
+        provided_key = None
+        
+        if api_key:
+            provided_key = api_key
+        elif auth_header:
+            # Formato esperado: "Bearer <api_key>"
+            try:
+                scheme, credentials = auth_header.split()
+                if scheme.lower() == "bearer":
+                    provided_key = credentials
+            except ValueError:
+                pass
+        
+        if not provided_key:
             logger.warning(
-                "Requisição sem Authorization header",
+                "Requisição sem API Key",
                 path=request.url.path,
                 client=request.client.host if request.client else "unknown"
             )
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Authorization header missing",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
-        
-        # Formato esperado: "Bearer <api_key>"
-        try:
-            scheme, credentials = auth_header.split()
-            if scheme.lower() != "bearer":
-                raise ValueError("Invalid scheme")
-        except ValueError:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid Authorization header format",
+                detail="API Key não fornecida. Use header 'X-API-Key' ou 'Authorization: Bearer <key>'",
                 headers={"WWW-Authenticate": "Bearer"},
             )
         
         # Valida API Key (constant-time comparison previne timing attacks)
-        if not secrets.compare_digest(credentials, settings.api_key):
+        if not secrets.compare_digest(provided_key, settings.api_key):
             logger.warning(
                 "API Key inválida",
                 path=request.url.path,
@@ -76,7 +78,7 @@ class APIKeyMiddleware(BaseHTTPMiddleware):
             )
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="Invalid API Key",
+                detail="API Key inválida",
             )
         
         logger.debug(

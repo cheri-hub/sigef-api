@@ -77,6 +77,13 @@ test-results/
 # Docker
 .docker/
 
+# C# / .NET
+**/bin/
+**/obj/
+*.dll
+*.exe
+*.pdb
+
 # Certificados (NUNCA commitar!)
 *.p12
 *.pfx

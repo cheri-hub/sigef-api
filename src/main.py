@@ -146,6 +146,9 @@ File.WriteAllBytes("parcela.csv", bytes);
         docs_url=None,  # Configuraremos manualmente
         redoc_url=None,  # Configuraremos manualmente
         openapi_url="/openapi.json",
+        servers=[
+            {"url": "/api", "description": "API via Nginx proxy"},
+        ] if settings.is_production else None,
         lifespan=lifespan,
         swagger_ui_parameters={
             "syntaxHighlight.theme": "monokai",

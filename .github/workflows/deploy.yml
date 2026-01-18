@@ -149,14 +149,27 @@ jobs:
 
       - name: Health check
         run: |
-          sleep 15
-          ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'ENDSSH'
+          sleep 20
+          ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << ENDSSH
+            echo "Checking containers..."
+            docker ps | grep gov-auth || echo "No gov-auth containers found!"
+            
+            echo "Checking API logs..."
+            docker logs gov-auth-api --tail 20 2>&1 || true
+            
             echo "Checking API..."
-            curl -sf http://localhost:${{ env.API_PORT }}/health || exit 1
-            echo "✅ API OK"
+            for i in 1 2 3 4 5; do
+              if curl -sf http://localhost:8001/health; then
+                echo "✅ API OK"
+                break
+              fi
+              echo "Attempt \$i failed, waiting 5s..."
+              sleep 5
+            done
+            curl -sf http://localhost:8001/health || exit 1
             
             echo "Checking Frontend..."
-            curl -sf http://localhost:${{ env.FRONTEND_PORT }}/ || exit 1
+            curl -sf http://localhost:3002/ || exit 1
             echo "✅ Frontend OK"
           ENDSSH
           echo "✅ All health checks passed!"

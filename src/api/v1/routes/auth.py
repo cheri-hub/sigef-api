@@ -82,13 +82,21 @@ async def browser_login(request: Request) -> BrowserLoginResponse:
     
     NÃO abre navegador no servidor, apenas retorna a URL.
     """
+    from src.core.config import get_settings
+    settings = get_settings()
+    
     browser_auth = BrowserAuthSession()
     session_data = browser_auth.create_browser_session()
     
     # Constrói URL de autenticação
     # O cliente usará esta URL para fazer login no Gov.br
     base_url = str(request.base_url).rstrip("/")
-    login_url = f"{base_url}/auth-browser?token={session_data['auth_token']}"
+    
+    # Em produção, adiciona /api pois Nginx faz proxy de /api/* para a API
+    if settings.is_production:
+        login_url = f"{base_url}/api/auth-browser?token={session_data['auth_token']}"
+    else:
+        login_url = f"{base_url}/auth-browser?token={session_data['auth_token']}"
     
     logger.info(
         f"Sessão de browser-login criada: {session_data['session_id']}"

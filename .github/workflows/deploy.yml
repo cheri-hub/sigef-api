@@ -128,36 +128,44 @@ jobs:
       
       - name: Deploy on server
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "
+          # Cria arquivo .env com as credenciais
+          echo "API_KEY=${{ secrets.API_KEY }}" > /tmp/gov-auth.env
+          echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> /tmp/gov-auth.env
+          
+          # Copia .env para o servidor
+          scp -o StrictHostKeyChecking=no /tmp/gov-auth.env ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/opt/gov-auth/.env
+          rm /tmp/gov-auth.env
+          
+          # Executa deploy
+          ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'ENDSSH'
             set -e
             
-            echo '📁 Criando diretórios com permissões...'
+            echo "📁 Criando diretórios com permissões..."
             mkdir -p /opt/gov-auth/data/sessions
             mkdir -p /opt/gov-auth/data/downloads
             mkdir -p /opt/gov-auth/data/logs
             mkdir -p /opt/gov-auth/data/browser_auth
             chmod -R 777 /opt/gov-auth/data
+            chmod 600 /opt/gov-auth/.env
             
-            echo '📦 Carregando imagens Docker...'
+            echo "📦 Carregando imagens Docker..."
             docker load < /tmp/api-image.tar.gz
             docker load < /tmp/frontend-image.tar.gz
             rm /tmp/api-image.tar.gz /tmp/frontend-image.tar.gz
             
-            echo '🔄 Parando containers antigos...'
+            echo "🔄 Parando containers antigos..."
             cd /opt/gov-auth
             docker compose down || true
             
-            echo '🚀 Iniciando novos containers...'
-            export API_KEY='${{ secrets.API_KEY }}'
-            export SECRET_KEY='${{ secrets.SECRET_KEY }}'
-            docker compose up -d
+            echo "🚀 Iniciando novos containers..."
+            docker compose --env-file .env up -d
             
-            echo '🧹 Limpando imagens antigas...'
+            echo "🧹 Limpando imagens antigas..."
             docker image prune -f
             
-            echo '✅ Deploy concluído!'
+            echo "✅ Deploy concluído!"
             docker ps | grep gov-auth
-          "
+          ENDSSH
 
       - name: Health check
         run: |

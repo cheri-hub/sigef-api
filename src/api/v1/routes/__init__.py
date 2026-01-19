@@ -19,9 +19,18 @@ async def api_info():
     """Informações da API v1."""
     return {
         "version": "1.0.0-min",
-        "description": "API mínima para cliente SIGEF",
-        "endpoints": {
-            "auth": "/v1/auth",
-            "sigef": "/v1/sigef",
+        "description": "API para integração com sistemas Gov.br",
+        "platforms": {
+            "sigef": {
+                "name": "SIGEF - Sistema de Gestão Fundiária",
+                "status": "active",
+                "endpoints": "/v1/sigef",
+            },
+            "sicar": {
+                "name": "SICAR - Sistema de Cadastro Ambiental Rural",
+                "status": "planned",
+                "endpoints": "/v1/sicar",
+            },
         },
+        "auth": "/v1/auth",
     }

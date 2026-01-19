@@ -64,6 +64,7 @@ class Session:
     # Cookies das plataformas
     govbr_cookies: list[Cookie] = field(default_factory=list)
     sigef_cookies: list[Cookie] = field(default_factory=list)
+    sicar_cookies: list[Cookie] = field(default_factory=list)  # Futuro: SICAR
     
     # LocalStorage (contém o JWT)
     local_storage: dict[str, str] = field(default_factory=dict)
@@ -76,9 +77,10 @@ class Session:
     expires_at: datetime | None = None
     last_used_at: datetime | None = None
     
-    # Estado
+    # Estado de autenticação por plataforma
     is_govbr_authenticated: bool = False
     is_sigef_authenticated: bool = False
+    is_sicar_authenticated: bool = False  # Futuro: SICAR
     
     def is_expired(self) -> bool:
         """Verifica se a sessão expirou."""
@@ -95,7 +97,7 @@ class Session:
         Retorna cookies como dicionário nome: valor.
         
         Args:
-            platform: "govbr", "sigef" ou "all"
+            platform: "govbr", "sigef", "sicar" ou "all"
         """
         cookies: dict[str, str] = {}
         
@@ -105,6 +107,10 @@ class Session:
                 
         if platform in ("sigef", "all"):
             for c in self.sigef_cookies:
+                cookies[c.name] = c.value
+        
+        if platform in ("sicar", "all"):
+            for c in self.sicar_cookies:
                 cookies[c.name] = c.value
                 
         return cookies
